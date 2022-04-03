@@ -45,7 +45,9 @@ mytheme <- theme_classic(base_size = 14) +
 
 
 # Rationale and Research Questions
-
+> How does specific conductance vary seasonally? 
+> Is calcium, magnesium, or sodium the driver of specific conductance?
+> What is the likely specific conductance in the future (forcasting trends)?
 
 
 \newpage
