@@ -23,7 +23,7 @@ mainfont: Times New Roman
 
 ```{r setup, include=FALSE}
 # Set your working director
-setwd("/Users/kmac9/OneDrive/Documents/Duke/Year 1/Spring 2022/ENV Data/CarpenterFischerMacDonald_ENV872_EDA_FinalProject/")
+# setwd("/Users/kmac9/OneDrive/Documents/Duke/Year 1/Spring 2022/ENV Data/CarpenterFischerMacDonald_ENV872_EDA_FinalProject/")
 getwd()
 
 # Load your packages
@@ -52,7 +52,7 @@ mytheme <- theme_classic(base_size = 14) +
 
 \newpage
 
-# Dataset Information
+# Dataset Information (Jack)
 
 
 
