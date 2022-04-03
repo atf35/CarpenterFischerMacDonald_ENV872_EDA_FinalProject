@@ -68,10 +68,11 @@ mytheme <- theme_classic(base_size = 14) +
 
 
 
-## Question 1: <insert specific question here and add additional subsections for additional questions below, if needed>
+## Question 1: < How does specific conductance vary seasonally? >
 
-## Question 2: 
+## Question 2: <Is calcium, magnesium, or sodium the driver of specific conductance?>
 
+##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
 
 
