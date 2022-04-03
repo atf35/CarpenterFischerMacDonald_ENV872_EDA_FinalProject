@@ -57,6 +57,10 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500",
 
 2. Generate a research question(s) that can be answered using data from your dataset. This question(s) should be specific enough to be answered in the time span of the project but complex enough to require all steps in the data pipeline we have discussed in class.
 
+> How does specific conductance vary seasonally? 
+> Is calcium, magnesium, or sodium the driver of specific conductance?
+> What is the likely specific conductance in the future (forcasting trends)?
+
 ## POPULATE YOUR REPO AND ANALYZE YOUR DATA
 
 1. Populate your README with the necessary information for the project. This should include your name, information about the course project, and information about the topic of interest. 
