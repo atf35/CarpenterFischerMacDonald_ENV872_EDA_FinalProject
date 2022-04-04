@@ -118,18 +118,18 @@ summary(NeuseWQ_processed)
 summary(NeuseFlow_processed) #contains NA in dataset
 ```
 
-```{r Histograms}
-ggplot(NeuseWQ_processed, aes(x = SpC_uS.cm)) +
-  geom_histogram(binwidth = 5) +
-  labs(title = "Distribution of Specific Conductance in the Neuse River",
-       x = expression("Specific Conductance ("*mu*"S/cm)"), y= "Count")
+```{r Variables over time}
+ggplot(NeuseWQ_processed) +
+  geom_point(aes(x = ActivityStartDate, y = SpC_uS.cm)) +
+  labs(title = "Specific Conductance over time in the Neuse River",
+       x = "Sample Date", y = expression("Specific Conductance ("*mu*"S/cm)")) #notice gap in dataset
 
-ggplot(NeuseFlow_processed, aes(x = discharge_cfs)) +
-  geom_histogram(binwidth = 20) +
-  labs(title = "Distribution of Flow in the Neuse River",
-       x = "Discharge (cfs)", y = "Count")
-
+ggplot(NeuseFlow_processed) +
+  geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
+  labs(title = "Flow over time in the Neuse River",
+       x = "Sample Date", y = expression("Discharge (cfs)"))
 ```
+
 
 
 
