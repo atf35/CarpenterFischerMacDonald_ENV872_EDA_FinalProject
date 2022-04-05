@@ -39,8 +39,13 @@ library(maps)
 library(knitr)
 
 
+<<<<<<< HEAD
+# Set your ggplot theme
+mytheme <- theme_classic(base_size = 10) +
+=======
 # Set ggplot theme
 mytheme <- theme_classic(base_size = 14) +
+>>>>>>> 73b56b6a48e32d67e663afb77aebe92c8f00d274
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 
