@@ -98,10 +98,15 @@ write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/Neu
 ```
 
 
-# Rationale and Research Questions
-> How does specific conductance vary seasonally? 
-> Is calcium, magnesium, or sodium the driver of specific conductance?
-> What is the likely specific conductance in the future (forcasting trends)?
+# Rationale and Research Questions (Kathlyn)
+> The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. We are only beginning to understand the impact of human action on water bodies. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of water quality. Changes in conductivity over time suggest a potential pollutant entering the system. 
+
+> For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022) (???, check on this bc of the NAs). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). ADD MORE!
+
+> We used the following research questions to guide our work: 
+> 1. How does specific conductance vary seasonally? 
+> 2. Is calcium, magnesium, or sodium the driver of specific conductance?
+> 3. What is the likely specific conductance in the future (forcasting trends)?
 
 
 \newpage
