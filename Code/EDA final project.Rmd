@@ -34,10 +34,18 @@ library(lubridate)
 library(trend)
 library(forecast)
 library(dataRetrieval)
+library(sf)
+library(maps)
+library(knitr)
 
 
+<<<<<<< HEAD
+# Set your ggplot theme
+mytheme <- theme_classic(base_size = 10) +
+=======
 # Set ggplot theme
 mytheme <- theme_classic(base_size = 14) +
+>>>>>>> 73b56b6a48e32d67e663afb77aebe92c8f00d274
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 
@@ -59,41 +67,51 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
                      startDate = "1976-01-01",
                      endDate = "")
 write.csv(NeuseFlow, row.names = TRUE, file = "../Data/Raw/NeuseFlow_raw.csv")
+```
 
+```{r wrangling}
 ## Clean up datasets
 
 # water quality dataset
 NeuseWQ_processed <- NeuseWQ %>%
   select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition, 
          CharacteristicName, ResultMeasureValue) %>%
-  mutate(Variable = case_when(CharacteristicName == "Calcium" ~ "Calcium_mg.L",
-                              CharacteristicName == "Magnesium" ~ "Magnesium_mg.L",
-                              CharacteristicName == "Sodium" ~ "Sodium_mg.L",
+  mutate(Variable = case_when(CharacteristicName == "Calcium" ~ "Ca_mg.L",
+                              CharacteristicName == "Magnesium" ~ "Mg_mg.L",
+                              CharacteristicName == "Sodium" ~ "Na_mg.L",
                               CharacteristicName == "Specific conductance" ~ "SpC_uS.cm")) %>%
   select(-CharacteristicName) %>%
-  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue")
+  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue") %>% 
+  mutate(Year = year(ActivityStartDate),
+         Month = month(ActivityStartDate)) %>%
+  group_by(Year, Month) %>%
+  summarise(AvgCa_mg.L = mean(Ca_mg.L),
+            AvgMg_mg.L = mean(Mg_mg.L),
+            AvgNa_mg.L = mean(Na_mg.L),
+            AvgSpC_uS.cm = mean(SpC_uS.cm)) 
 write.csv(NeuseWQ_processed, row.names = TRUE, file = "../Data/Processed/NeuseWQ_processed.csv")
 
 # flow dataset
 NeuseFlow_processed <- NeuseFlow %>%
-  select(ActivityStartDate = Date, discharge_cfs = X_00060_00003) %>%
-  filter(ActivityStartDate >= min(NeuseWQ_processed$ActivityStartDate) & 
-           ActivityStartDate <= max(NeuseWQ_processed$ActivityStartDate)) #include dates that pertain to water quality variables
+  select(ActivityStartDate = Date, discharge_cfs = X_00060_00003) %>% 
+  mutate(Year = year(ActivityStartDate),
+         Month = month(ActivityStartDate)) %>%
+  group_by(Year, Month) %>%
+  summarise(AvgDischarge_cfs = mean(discharge_cfs))
 write.csv(NeuseFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseFlow_processed.csv")
+
+
+## create sequence of dates with even spacing 
+Months <- data.frame(Date_monthrounded = seq.Date(from = as.Date("1976-01-01"), to = as.Date("2022-12-01"), by = "month"))
+
 
 ## Combine datasets
 NeuseWQFlow_processed <- NeuseWQ_processed %>%
-  full_join(., NeuseFlow_processed) %>%
-  mutate(Year = year(ActivityStartDate), 
-         Month = month(ActivityStartDate), 
-         DOY = yday(ActivityStartDate)) %>%
-  pivot_longer(cols = c("SpC_uS.cm", 
-                        "Sodium_mg.L", 
-                        "Magnesium_mg.L", 
-                        "Calcium_mg.L", 
-                        "discharge_cfs"),
-               names_to = "Variable", values_to = "Value") %>%
-  drop_na(Value)
+  full_join(., NeuseFlow_processed)
+
+NeuseWQFlow_monthly <- left_join(Months, NeuseWQFlow_processed)
+
+
 write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseWQFlow_processed.csv")
 ```
 
@@ -114,21 +132,51 @@ write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/Neu
 # Dataset Information (Jack)
 > Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization.
 
+Dataset           | Info
+------------------|------------------------
+NeuseWQ           |
+NeuseFlow         |
+
 
 \newpage
 
 # Exploratory Analysis (Atalie)
-```{r Dataset Summaries}
-summary(NeuseWQ_processed)
-summary(NeuseFlow_processed) #contains NA in dataset
+
+As an initial step in the exploratory analysis, we summarized both the water quality and flow datasets to find the number of missing observations. 
+
+We looked at specific conductivity and discharge over time to visualize any gaps in our datasets. An initial look at specific conductance over time shows a gap in our dataset in the mid-2000's (Figure []). This gap will need to be filled before conducting any time series analyses on this dataset. 
+```{r Map}
+?
 ```
 
-```{r Variables over time}
+```{r Dataset Summaries, echo=FALSE}
+summary(NeuseWQ_processed) #contains NA in dataset
+summary(NeuseFlow_processed)
+
+summary(NeuseWQFlow_processed)
+
+
+NeuseWQFlow_summary <- NeuseWQFlow_processed %>% 
+    group_by(Variable) %>% 
+    summarise(Mean = mean(Value),
+              Min = min(Value),
+              Max = max(Value),
+              SD = sd(Value))
+
+```
+
+```{r display summary tables, echo=FALSE}
+kable(NeuseWQFlow_summary, caption = "Summary")
+```
+
+
+```{r Specific conductivity over time, echo=FALSE}
 ggplot(NeuseWQ_processed) +
   geom_point(aes(x = ActivityStartDate, y = SpC_uS.cm)) +
   labs(title = "Specific Conductance over time in the Neuse River",
        x = "Sample Date", y = expression("Specific Conductance ("*mu*"S/cm)")) #notice gap in dataset
-
+```
+```{r Discharge over time}
 ggplot(NeuseFlow_processed) +
   geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
   labs(title = "Flow over time in the Neuse River",
@@ -142,6 +190,7 @@ ggplot(NeuseFlow_processed) +
 
 # Analysis
 
+*time series!*
 
 
 ## Question 1: < How does specific conductance vary seasonally? >
