@@ -23,7 +23,7 @@ mainfont: Times New Roman
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(include = FALSE)
-# Set your working director
+# Set your working directory
 # setwd("/Users/kmac9/OneDrive/Documents/Duke/Year 1/Spring 2022/ENV Data/CarpenterFischerMacDonald_ENV872_EDA_FinalProject/")
 # setwd("/Users/ataliefischer/Desktop/EDA/CarpenterFischerMacDonald_ENV872_EDA_FinalProject/")
 getwd()
