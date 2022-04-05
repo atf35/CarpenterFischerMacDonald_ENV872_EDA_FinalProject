@@ -33,7 +33,7 @@ library(trend)
 
 
 # Set your ggplot theme
-mytheme <- theme_classic(base_size = 14) +
+mytheme <- theme_classic(base_size = 10) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 
