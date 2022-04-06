@@ -39,13 +39,8 @@ library(maps)
 library(knitr)
 
 
-<<<<<<< HEAD
-# Set your ggplot theme
-mytheme <- theme_classic(base_size = 10) +
-=======
 # Set ggplot theme
-mytheme <- theme_classic(base_size = 14) +
->>>>>>> 73b56b6a48e32d67e663afb77aebe92c8f00d274
+mytheme <- theme_classic(base_size = 10) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 
@@ -69,59 +64,12 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
 write.csv(NeuseFlow, row.names = TRUE, file = "../Data/Raw/NeuseFlow_raw.csv")
 ```
 
-```{r wrangling}
-## Clean up datasets
-
-# water quality dataset
-NeuseWQ_processed <- NeuseWQ %>%
-  select(MonitoringLocationIdentifier, ActivityStartDate, HydrologicCondition, 
-         CharacteristicName, ResultMeasureValue) %>%
-  mutate(Variable = case_when(CharacteristicName == "Calcium" ~ "Ca_mg.L",
-                              CharacteristicName == "Magnesium" ~ "Mg_mg.L",
-                              CharacteristicName == "Sodium" ~ "Na_mg.L",
-                              CharacteristicName == "Specific conductance" ~ "SpC_uS.cm")) %>%
-  select(-CharacteristicName) %>%
-  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue") %>% 
-  mutate(Year = year(ActivityStartDate),
-         Month = month(ActivityStartDate)) %>%
-  group_by(Year, Month) %>%
-  summarise(AvgCa_mg.L = mean(Ca_mg.L),
-            AvgMg_mg.L = mean(Mg_mg.L),
-            AvgNa_mg.L = mean(Na_mg.L),
-            AvgSpC_uS.cm = mean(SpC_uS.cm)) 
-write.csv(NeuseWQ_processed, row.names = TRUE, file = "../Data/Processed/NeuseWQ_processed.csv")
-
-# flow dataset
-NeuseFlow_processed <- NeuseFlow %>%
-  select(ActivityStartDate = Date, discharge_cfs = X_00060_00003) %>% 
-  mutate(Year = year(ActivityStartDate),
-         Month = month(ActivityStartDate)) %>%
-  group_by(Year, Month) %>%
-  summarise(AvgDischarge_cfs = mean(discharge_cfs))
-write.csv(NeuseFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseFlow_processed.csv")
-
-
-## create sequence of dates with even spacing 
-Months <- data.frame(Date_monthrounded = seq.Date(from = as.Date("1976-01-01"), to = as.Date("2022-12-01"), by = "month"))
-
-
-## Combine datasets
-NeuseWQFlow_processed <- NeuseWQ_processed %>%
-  full_join(., NeuseFlow_processed)
-
-NeuseWQFlow_monthly <- left_join(Months, NeuseWQFlow_processed)
-
-
-write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseWQFlow_processed.csv")
-```
-
-
 # Rationale and Research Questions (Kathlyn)
-> The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. We are only beginning to understand the impact of human action on water bodies. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of water quality. Changes in conductivity over time suggest a potential pollutant entering the system. 
+The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. We are only beginning to understand the impact of human action on water bodies. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of water quality. Changes in conductivity over time suggest a potential pollutant entering the system. 
 
-> For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022) (???, check on this bc of the NAs). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). ADD MORE!
+For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022) (???, check on this bc of the NAs). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). ADD MORE!
 
-> We used the following research questions to guide our work: 
+We used the following research questions to guide our work: 
 > 1. How does specific conductance vary seasonally? 
 > 2. Is calcium, magnesium, or sodium the driver of specific conductance?
 > 3. What is the likely specific conductance in the future (forcasting trends)?
@@ -130,7 +78,8 @@ write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/Neu
 \newpage
 
 # Dataset Information (Jack)
-> Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization.
+
+Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization.
 
 Dataset           | Info
 ------------------|------------------------
@@ -142,12 +91,102 @@ NeuseFlow         |
 
 # Exploratory Analysis (Atalie)
 
+The first step we took in our initial exploratory analysis was to wrangle the datasets to include only the columns of interest. For the water quality (WQ) dataset, this included the sampling dates and concentrations for specific conductance, calcium (Ca), sodium (Na), and magnesium (Mg), which were each given separate columns. For the flow dataset, this included sampling dates and daily discharge observations. The WQ dataset contains monthly observations, however, not necessarily sampled on the first of each month. We wrangled the WQ dataset to round the dates to the first of the month to ensure that there are evenly spaced time steps across the years, a necessary condition for time series analyses. 
+
+```{r WQ wrangling, include=FALSE}
+# select columns of interest
+NeuseWQ_processed <- NeuseWQ %>%
+  select(ActivityStartDate, HydrologicCondition, CharacteristicName, ResultMeasureValue) %>%
+  mutate(Variable = case_when(CharacteristicName == "Calcium" ~ "Ca_mg.L",
+                              CharacteristicName == "Magnesium" ~ "Mg_mg.L",
+                              CharacteristicName == "Sodium" ~ "Na_mg.L",
+                              CharacteristicName == "Specific conductance" ~ "SpC_uS.cm")) %>%
+  select(-CharacteristicName) %>%
+  pivot_wider(names_from = "Variable", values_from = "ResultMeasureValue") 
+
+# create sequence of dates with even time steps 
+Months <- data.frame(Date_monthrounded = seq.Date(from = as.Date("1976-01-01"), to = as.Date("2022-12-01"), by = "month"))
+
+# round sample dates down to the first of the month to ensure even time steps
+NeuseWQ_processed <- NeuseWQ_processed %>% 
+  mutate(Year = year(ActivityStartDate),
+         Month = month(ActivityStartDate),
+         Date_monthrounded = floor_date(ActivityStartDate, "month")) %>% # round date
+  arrange(ActivityStartDate)
+
+# join the WQ and months together to find gaps in data
+NeuseWQ_monthly <- left_join(Months, NeuseWQ_processed)
+
+# average months to consolidate months with multiple observations
+NeuseWQ_monthly <- NeuseWQ_monthly %>% 
+  group_by(Date_monthrounded) %>% 
+  summarise(AvgCa_mg.L = mean(Ca_mg.L),
+            AvgMg_mg.L = mean(Mg_mg.L),
+            AvgNa_mg.L = mean(Na_mg.L),
+            AvgSpC_uS.cm = mean(SpC_uS.cm))
+
+
+# write csv file for WQ data
+write.csv(NeuseWQ_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQ_processed.csv")
+write.csv(NeuseWQ_monthly, row.names = TRUE, file = "./Data/Processed/NeuseWQ_monthly.csv")
+```
+
+```{r Visualize monthly WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River over time to determine the need for interpolation."}
+ggplot(NeuseWQ_monthly) +
+  geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
+  labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
+```
+
+The WQ dataset contains many periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and we will therefore not require any interpolation of this dataset. 
+
+```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River from 2013 through 2021."}
+NeuseWQ_short <- NeuseWQ_monthly %>% 
+  filter(Date_monthrounded >= "2013-01-01" & Date_monthrounded < "2022-01-01")
+
+ggplot(NeuseWQ_short) +
+  geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
+  labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
+```
+
+```{r}
+NeuseWQ_short_summary <- NeuseWQ_short %>% 
+  group_by(AvgCa_mg.L, AvgMg_mg.L, AvgNa_mg.L, AvgSpC_uS.cm) %>% 
+  summarise(count(AvgCa_mg.L = NA))
+```
+
+
+```{r Flow wrangling}
+# flow dataset
+NeuseFlow_processed <- NeuseFlow %>%
+  select(ActivityStartDate = Date, discharge_cfs = X_00060_00003) %>% 
+  mutate(Year = year(ActivityStartDate),
+         Month = month(ActivityStartDate)) %>%
+  group_by(Year, Month) %>%
+  summarise(AvgDischarge_cfs = mean(discharge_cfs))
+write.csv(NeuseFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseFlow_processed.csv")
+
+
+
+
+
+## Combine datasets
+NeuseWQFlow_processed <- NeuseWQ_processed %>%
+  full_join(., NeuseFlow_processed)
+
+NeuseWQFlow_monthly <- left_join(Months, NeuseWQFlow_processed)
+
+
+write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseWQFlow_processed.csv")
+```
 As an initial step in the exploratory analysis, we summarized both the water quality and flow datasets to find the number of missing observations. 
 
 We looked at specific conductivity and discharge over time to visualize any gaps in our datasets. An initial look at specific conductance over time shows a gap in our dataset in the mid-2000's (Figure []). This gap will need to be filled before conducting any time series analyses on this dataset. 
-```{r Map}
-?
-```
+
+- missing data, interpolation
+- what do we have
+- usable for next steps? 
+- wrangling
+
 
 ```{r Dataset Summaries, echo=FALSE}
 summary(NeuseWQ_processed) #contains NA in dataset
