@@ -315,10 +315,13 @@ Na.plot <- ggplot(NeuseWQ_short) +
 
 ```{r Visualise all three components together, echo=FALSE, fig.align='left'}
 #now lets look at all three salt ions over the same time period
+
+
 plot_grid(Ca.plot, Mg.plot, Na.plot,
           ncol = 1,
           align = "hv")
 ```
+
 
 ```{r add on top of seasonality graph, echo= FALSE, fig.align='left'}
 #Get everything on the same graph and check for trends
