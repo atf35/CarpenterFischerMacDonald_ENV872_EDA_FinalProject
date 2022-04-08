@@ -4,16 +4,16 @@ author: Atalie Fischer, Kathlyn MacDonald, Jack Carpenter
 date: April 12, 2022
 autosize: true
 
-First Slide
+Central question + context
 ========================================================
 
-For more details on authoring R presentations please visit <https://support.rstudio.com/hc/en-us/articles/200486468>.
+
 
 - Bullet 1
 - Bullet 2
 - Bullet 3
 
-Slide With Code
+Our Data
 ========================================================
 
 
@@ -31,7 +31,17 @@ summary(cars)
  Max.   :25.0   Max.   :120.00  
 ```
 
-Slide With Plot
+Data Wrangling process
+========================================================
+
+Analysis of data
 ========================================================
 
 ![plot of chunk unnamed-chunk-2](EDA Final Pres-figure/unnamed-chunk-2-1.png)
+
+Results
+========================================================
+
+
+Summary & Concluding remarks
+========================================================
