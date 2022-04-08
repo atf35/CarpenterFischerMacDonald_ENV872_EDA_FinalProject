@@ -217,13 +217,13 @@ summary(NeuseFlow_processed)
 
 summary(NeuseWQFlow_processed)
 
-
-NeuseWQFlow_summary <- NeuseWQFlow_processed %>% 
-    group_by(Variable) %>% 
-    summarise(Mean = mean(Value),
-              Min = min(Value),
-              Max = max(Value),
-              SD = sd(Value))
+#not working correctly
+#NeuseWQFlow_summary <- NeuseWQFlow_processed %>% 
+#    group_by(Variable) %>% 
+#    summarise(Mean = mean(Value),
+#              Min = min(Value),
+#              Max = max(Value),
+#              SD = sd(Value))
 
 ```
 
@@ -279,43 +279,53 @@ Neuse_seasonality_trends_Flow
 
 
 ## Question 2: <Is calcium, magnesium, or sodium the driver of specific conductance?>
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 
-=======
+
+
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
 #plot sodium over same shorter time period
 ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
   labs(x = "Date", y = expression("Sodium (mg/L)"))
-=======
+```
+
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Calcium in the Neuse River from 2013 through 2021."}
 #plot calcium over same shorter time period as specific conductivity
 Ca.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
   labs(x = "", y = expression("Calcium (mg/L)"))
->>>>>>> d36b6e418fa53ca934c3d315502b7beb1dcade40
+
 ```
+
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Magnesium in the Neuse River from 2013 through 2021."}
 #plot Mg over same shorter time period
 Mg.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
   labs(x = "", y = expression("Magnesium (mg/L"))
 ```
+
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
 #plot sodium over same shorter time period
 Na.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
   labs(x = "Date", y = expression("Sodium (mg/L)"))
+
 ```
+
 ```{r Visualise all three components together, echo=FALSE, fig.align='left'}
 #now lets look at all three salt ions over the same time period
 plot_grid(Ca.plot, Mg.plot, Na.plot,
           ncol = 1,
           align = "hv")
 ```
->>>>>>> 8d5742267780294359890597397fc0306a5e7038
+
+```{r add on top of seasonality graph, echo= FALSE, fig.align='left'}
+#Get everything on the same graph and check for trends
+
+
+```
+
 
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
