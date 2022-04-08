@@ -10,7 +10,8 @@ subtitle: "Web address for GitHub repository"
 author: "Atalie Fischer, Kathlyn MacDonald, Jack Carpenter"
 fontsize: 12pt
 mainfont: Times New Roman
-
+editor_options: 
+  chunk_output_type: console
 ---
 
 \newpage
@@ -81,6 +82,7 @@ We used the following research questions to guide our work:
 # Dataset Information (Jack)
 
 Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. USGS gage stations typically collect discharge, and a subset collect water quality data as well. This water quality data may include nutrient concentrations, concentrations of chlorophyll a, specific conductivity, and concentrations of certain ions. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization. 
+
 To obtain both sets of data, we used the dataRetrieval package to connect directly to the NWIS database and pull water quality and discharge data without needing to download it first. Both sets of data are pulled starting in 1976, and end at the most recent data point in the database in 2022. 
 
 Dataset           | Info
@@ -196,7 +198,7 @@ NeuseWQFlow_processed <- NeuseWQ_processed %>%
 NeuseWQFlow_monthly <- left_join(Months, NeuseWQFlow_processed)
 
 
-write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseWQFlow_processed.csv")
+write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQFlow_processed.csv")
 ```
 As an initial step in the exploratory analysis, we summarized both the water quality and flow datasets to find the number of missing observations. 
 
