@@ -6,7 +6,7 @@ autosize: true
 
 Central question + context
 ========================================================
-
+Conductivity is a measure of water quality, which 
 
 
 - Bullet 1
