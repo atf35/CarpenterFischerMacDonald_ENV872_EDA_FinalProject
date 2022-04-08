@@ -37,6 +37,7 @@ library(dataRetrieval)
 library(sf)
 library(maps)
 library(knitr)
+library(nhdplusTools)
 
 
 # Set ggplot theme
@@ -79,19 +80,20 @@ We used the following research questions to guide our work:
 
 # Dataset Information (Jack)
 
-Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization.
+Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. USGS gage stations typically collect discharge, and a subset collect water quality data as well. This water quality data may include nutrient concentrations, concentrations of chlorophyll a, specific conductivity, and concentrations of certain ions. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization. 
+To obtain both sets of data, we used the dataRetrieval package to connect directly to the NWIS database and pull water quality and discharge data without needing to download it first. Both sets of data are pulled starting in 1976, and end at the most recent data point in the database in 2022. 
 
 Dataset           | Info
 ------------------|------------------------
-NeuseWQ           |
-NeuseFlow         |
+NeuseWQ           | Water quality data collected at USGS gage 02089500
+NeuseFlow         | Discharge data collected at USGS gage 02089500
 
 
 \newpage
 
 # Exploratory Analysis (Atalie)
 
-The first step we took in our initial exploratory analysis was to wrangle the datasets to include only the columns of interest. For the water quality (WQ) dataset, this included the sampling dates and concentrations for specific conductance, calcium (Ca), sodium (Na), and magnesium (Mg), which were each given separate columns. For the flow dataset, this included sampling dates and daily discharge observations. The WQ dataset contains monthly observations, however, not necessarily sampled on the first of each month. We wrangled the WQ dataset to round the dates to the first of the month to ensure that there are evenly spaced time steps across the years, a necessary condition for time series analyses. 
+The first step we took in our initial exploratory analysis was to wrangle the water quality (WQ) dataset to include only the columns of interest. This included the sampling dates and concentrations for specific conductance, calcium (Ca), sodium (Na), and magnesium (Mg), which were each given separate columns. This dataset contains monthly observations, however, not necessarily sampled on the first of each month. We wrangled the WQ dataset to round the dates to the first of the month to ensure that there are evenly spaced time steps across the years, a necessary condition for time series analyses. 
 
 ```{r WQ wrangling, include=FALSE}
 # select columns of interest
@@ -131,13 +133,15 @@ write.csv(NeuseWQ_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQ_
 write.csv(NeuseWQ_monthly, row.names = TRUE, file = "./Data/Processed/NeuseWQ_monthly.csv")
 ```
 
+We plotted the specific conductance over time to visualize any gaps in our dataset. We see that the WQ dataset contains many periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and we will therefore not require any interpolation of this dataset. 
+
 ```{r Visualize monthly WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River over time to determine the need for interpolation."}
 ggplot(NeuseWQ_monthly) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
   labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
 ```
 
-The WQ dataset contains many periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and we will therefore not require any interpolation of this dataset. 
+
 
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River from 2013 through 2021."}
 NeuseWQ_short <- NeuseWQ_monthly %>% 
@@ -149,26 +153,42 @@ ggplot(NeuseWQ_short) +
 ```
 
 ```{r}
-NeuseWQ_short_summary <- NeuseWQ_short %>% 
-  group_by(AvgCa_mg.L, AvgMg_mg.L, AvgNa_mg.L, AvgSpC_uS.cm) %>% 
-  summarise(count(AvgCa_mg.L = NA))
+summary(NeuseWQ_short)
 ```
 
+We are also interested in the flow of the Neuse River because this factor may affect salinity. For example, higher discharges may dilute any salinity and drier periods may reflect higher salt content. We started by wrangling the flow dataset to include the parameters of interest, sampling date and discharge. 
 
 ```{r Flow wrangling}
 # flow dataset
 NeuseFlow_processed <- NeuseFlow %>%
   select(ActivityStartDate = Date, discharge_cfs = X_00060_00003) %>% 
+  filter(ActivityStartDate >= "2013-01-01" & ActivityStartDate <= "2022-01-01") %>% 
   mutate(Year = year(ActivityStartDate),
-         Month = month(ActivityStartDate)) %>%
-  group_by(Year, Month) %>%
-  summarise(AvgDischarge_cfs = mean(discharge_cfs))
-write.csv(NeuseFlow_processed, row.names = TRUE, file = "../Data/Processed/NeuseFlow_processed.csv")
+         Month = month(ActivityStartDate))
+
+## check even time steps
+Days <- data.frame(Days = seq.Date(from = as.Date("2013-01-01"), to = as.Date("2022-01-01"), by = "day"))
+NeuseFlow_days <- left_join(Days, NeuseFlow_processed, by = c("Days" = "ActivityStartDate"))
+
+summary(NeuseFlow_days) # no NA's in dataset
 
 
+# write files to csv
+write.csv(NeuseFlow_processed, row.names = TRUE, file = "./Data/Processed/NeuseFlow_processed.csv")
+write.csv(NeuseFlow_days, row.names = TRUE, file = "./Data/Processed/NeuseFlow_days.csv")
+```
 
+```{r Discharge over time}
+ggplot(NeuseFlow_processed) +
+  geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
+  labs(x = "Date", y = "Discharge (cfs)") +
+  scale_y_log10()
+```
+```{r Discharge summary}
+summary(NeuseFlow_processed) #no NAs in the dataset
+```
 
-
+```{r}
 ## Combine datasets
 NeuseWQFlow_processed <- NeuseWQ_processed %>%
   full_join(., NeuseFlow_processed)
@@ -208,13 +228,6 @@ NeuseWQFlow_summary <- NeuseWQFlow_processed %>%
 kable(NeuseWQFlow_summary, caption = "Summary")
 ```
 
-
-```{r Specific conductivity over time, echo=FALSE}
-ggplot(NeuseWQ_processed) +
-  geom_point(aes(x = ActivityStartDate, y = SpC_uS.cm)) +
-  labs(title = "Specific Conductance over time in the Neuse River",
-       x = "Sample Date", y = expression("Specific Conductance ("*mu*"S/cm)")) #notice gap in dataset
-```
 ```{r Discharge over time}
 ggplot(NeuseFlow_processed) +
   geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
@@ -229,14 +242,101 @@ ggplot(NeuseFlow_processed) +
 
 # Analysis
 
-*time series!*
-
-
 ## Question 1: < How does specific conductance vary seasonally? >
+```{r}
+NeuseCond_ts <- ts(NeuseWQ_short[[5]], frequency = 12)
+NeuseCond_decomp <- stl(NeuseCond_ts, s.window = "periodic")
+
+plot(NeuseCond_decomp)
+```
+```{r}
+NeuseFlow_ts <- ts(NeuseFlow_processed[[2]], frequency =365)
+NeuseFlow_decomp <- stl(NeuseFlow_ts, s.window = "periodic")
+
+plot(NeuseFlow_decomp)
+```
 
 ## Question 2: <Is calcium, magnesium, or sodium the driver of specific conductance?>
 
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
+
+
+
+
+
+```{r}
+# Recall there are a lot of parameters measured at the site
+NeuseParams <- whatNWISdata(siteNumbers = "02089500")
+
+# Extract latitude and longitude for the site
+NeuseCoords <- NeuseParams %>%
+  select(site_no, dec_lat_va, dec_long_va) %>%
+  distinct() #include only distinct rows in dataframe (consolidate repeats)
+
+# Define the gage site as the starting point
+start_point <- st_sfc(st_point(c(NeuseCoords$dec_long_va, NeuseCoords$dec_lat_va)), #convert lat/long coordinates into spatial data
+                      crs = 4269) # NAD83, commonly  used by US agencies
+start_comid <- discover_nhdplus_id(start_point) #ask for ID of site using coordinates 
+# start_point2 <- st_as_sf(data.frame(x = NeuseCoords$dec_long_va, y =  NeuseCoords$dec_lat_va), 
+#                             coords = c("x", "y"), crs = 4269)
+
+# Navigate the NLDI network
+NLDI <- navigate_nldi(list(featureSource = "comid", featureID = start_comid), #create origin dataset and flow lines (define upstream flowing down to the station point)
+                          mode = "upstreamTributaries", 
+                          distance_km = 1000)
+
+# Extract watershed and flowpath information
+subset_file <- tempfile(fileext = ".gpkg") #must use temp file to use subset function below
+subset <- subset_nhdplus(comids = as.integer(NLDI$UT$nhdplus_comid), #match with start_comid
+                         output_file = subset_file, 
+                         nhdplus_data = "download", 
+                         flowline_only = FALSE,
+                         return_data = TRUE, overwrite = TRUE) #overwrite temporary file 
+
+# Create data frames
+flowline <- subset$NHDFlowline_Network #streams and rivers within the defined network (dendritic pattern) (line segments)
+catchment <- subset$CatchmentSP #0/1 inlet, 1 outlet. no specific flowlines in, but flowline out. (polygon)
+waterbody <- subset$NHDWaterbody #anything other than a stream (polygon)
+
+class(flowline) #spatial features, tables, dataframes
+class(catchment)
+class(waterbody)
+
+# find gages near watershed
+gages <- get_nwis(AOI = catchment) #find other gages within the area of our catchment. can also define distance from a point as area of interest. 
+class(gages)
+
+# find gages only within watershed
+gages <- st_intersection(gages, catchment) #create dataset including only gages that intersect with catchement of interest. warning reminding that it should be in same projection. 
+
+
+
+
+
+
+
+plot_nhdplus("USGS-02089500", streamorder = 3) #specify minimum stream order you want to show. don't need to do all the stuff before. this is the Neuse River at Kinston (prepackaged) 
+
+
+states <- st_as_sf(map(database = "state", plot = FALSE, fill = TRUE, col = "white"))
+nc <- filter(states, ID == "north carolina")
+
+ggplot(nc) +
+  geom_sf(fill = "white") +
+  geom_sf(data = flowline, aes(color = streamorde)) +
+  labs(color = "Stream Order") +
+  theme(legend.position = "top")
+
+ggplot(catchment) +
+  geom_sf(fill = "white", color = "gray", lwd = 0.5) +
+  geom_sf(data = flowline, aes(color = streamorde)) +
+  geom_sf(data = gages, color = "darkred", size = 1) +
+  labs(color = "Stream Order") +
+  theme(legend.position = "top")
+```
+
+
+
 
 
 
