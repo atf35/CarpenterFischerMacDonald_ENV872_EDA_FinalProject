@@ -248,6 +248,11 @@ ggplot(NeuseFlow_processed) +
 ## Question 1: < How does specific conductance vary seasonally? >
 Answer: After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant in seasonality for conductivity (p = 0.25276). However, we can conclude seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
 
+Dataset           | P Value
+------------------|------------------------
+Conductivity      | 0.25276
+Flow Data         | 3.368e-07
+
 ```{r}
 #Creating Time Series for conductivity
 NeuseCond_ts <- ts(NeuseWQ_short[[5]], frequency = 12)
@@ -274,7 +279,23 @@ Neuse_seasonality_trends_Flow
 
 
 ## Question 2: <Is calcium, magnesium, or sodium the driver of specific conductance?>
+<<<<<<< HEAD
 
+
+=======
+```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
+#plot sodium over same shorter time period
+ggplot(NeuseWQ_short) +
+  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
+  labs(x = "Date", y = expression("Sodium (mg/L)"))
+```
+```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Magnesium in the Neuse River from 2013 through 2021."}
+#plot Mg over same shorter time period
+ggplot(NeuseWQ_short) +
+  geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
+  labs(x = "Date", y = expression("Magnesium (mg/L"))
+```
+>>>>>>> 8d5742267780294359890597397fc0306a5e7038
 
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
