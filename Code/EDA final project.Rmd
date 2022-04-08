@@ -186,6 +186,7 @@ ggplot(NeuseFlow_processed) +
   labs(x = "Date", y = "Discharge (cfs)") +
   scale_y_log10()
 ```
+
 ```{r Discharge summary}
 summary(NeuseFlow_processed) #no NAs in the dataset
 ```
@@ -259,7 +260,18 @@ plot(NeuseFlow_decomp)
 ```
 
 ## Question 2: <Is calcium, magnesium, or sodium the driver of specific conductance?>
-
+```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
+#plot sodium over same shorter time period
+ggplot(NeuseWQ_short) +
+  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
+  labs(x = "Date", y = expression("Sodium (mg/L)"))
+```
+```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Magnesium in the Neuse River from 2013 through 2021."}
+#plot Mg over same shorter time period
+ggplot(NeuseWQ_short) +
+  geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
+  labs(x = "Date", y = expression("Magnesium (mg/L"))
+```
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
 
