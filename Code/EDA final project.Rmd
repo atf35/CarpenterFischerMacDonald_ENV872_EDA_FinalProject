@@ -295,7 +295,11 @@ ggplot(NeuseWQ_short) +
 Ca.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
   labs(x = "", y = expression("Calcium (mg/L)"))
+<<<<<<< HEAD
 
+=======
+Ca.plot
+>>>>>>> 4cf799b206d7ade0e3054003bf3da16f34afcfae
 ```
 
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Magnesium in the Neuse River from 2013 through 2021."}
@@ -303,6 +307,7 @@ Ca.plot <- ggplot(NeuseWQ_short) +
 Mg.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
   labs(x = "", y = expression("Magnesium (mg/L"))
+Mg.plot
 ```
 
 ```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
@@ -310,7 +315,11 @@ Mg.plot <- ggplot(NeuseWQ_short) +
 Na.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
   labs(x = "Date", y = expression("Sodium (mg/L)"))
+<<<<<<< HEAD
 
+=======
+Na.plot
+>>>>>>> 4cf799b206d7ade0e3054003bf3da16f34afcfae
 ```
 
 ```{r Visualise all three components together, echo=FALSE, fig.align='left'}
@@ -321,6 +330,7 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
           ncol = 1,
           align = "hv")
 ```
+<<<<<<< HEAD
 
 
 ```{r add on top of seasonality graph, echo= FALSE, fig.align='left'}
@@ -330,6 +340,19 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
 ```
 
 
+=======
+```{r Visualise salts and conductivity, echo=FALSE, fig.align='left', fig.cap="Specific Conductivity and salts in the Neuse River from 2013 through 2021"}
+#plot spec cond and the salts on the same plot to look for patterns
+ggplot(NeuseWQ_short) +
+  geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
+  geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
+  geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
+  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
+  scale_color_viridis_d() +
+  labs(x = "Date", y = "Concentration", color = "Variable")
+```
+
+>>>>>>> 4cf799b206d7ade0e3054003bf3da16f34afcfae
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
 
