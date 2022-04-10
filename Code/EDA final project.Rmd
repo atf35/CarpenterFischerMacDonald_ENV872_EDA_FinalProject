@@ -5,7 +5,7 @@ output: pdf
     fig_caption: yes
     number_sections: yes
 geometry: margin=2.54cm
-title: "Seasonal Salt Content, in the Neuse"
+title: "Seasonal Salt Content, in the Neuse River"
 subtitle: "Web address for GitHub repository"
 author: "Atalie Fischer, Kathlyn MacDonald, Jack Carpenter"
 fontsize: 12pt
@@ -29,6 +29,9 @@ knitr::opts_chunk$set(include = FALSE)
 # setwd("/Users/ataliefischer/Desktop/EDA/CarpenterFischerMacDonald_ENV872_EDA_FinalProject/")
 getwd()
 
+#install.packages("fable")
+#install.packages("tseries")
+
 # Load packages
 library(tidyverse)
 library(lubridate)
@@ -40,6 +43,8 @@ library(maps)
 library(knitr)
 library(nhdplusTools)
 library(cowplot)
+library(fable)
+library(tseries)
 
 # Set ggplot theme
 mytheme <- theme_classic(base_size = 10) +
@@ -228,7 +233,8 @@ summary(NeuseWQFlow_processed)
 ```
 
 ```{r display summary tables, echo=FALSE}
-kable(NeuseWQFlow_summary, caption = "Summary")
+#not working properly
+#kable(NeuseWQFlow_summary, caption = "Summary")
 ```
 
 ```{r Discharge over time}
@@ -251,6 +257,9 @@ Answer: After running the the MannKendall test for seasonality, we have determin
 Dataset           | P Value
 ------------------|------------------------
 Conductivity      | 0.25276
++Calcium          | 0.1038
++Magnesium        | 0.29151
++Sodium           | 0.091911
 Flow Data         | 3.368e-07
 
 ```{r}
@@ -260,21 +269,58 @@ NeuseCond_decomp <- stl(NeuseCond_ts, s.window = "periodic")
 
 plot(NeuseCond_decomp)
 
+#Decomposing by Mineral
+#Calcium
+NeuseCond_Calcium_ts <- ts(NeuseWQ_short$AvgCa_mg.L, frequency = 12)
+NeuseCond_Calcium_decomp <- stl(NeuseCond_Calcium_ts, s.window = "periodic")
+plot(NeuseCond_Calcium_decomp)
+
+#Magnesium
+NeuseCond_magnesium_ts <- ts(NeuseWQ_short$AvgMg_mg.L, frequency = 12)
+NeuseCond_magneisum_decomp <- stl(NeuseCond_magnesium_ts, s.window = "periodic")
+plot(NeuseCond_magnesium_decomp)
+
+#Sodium
+NeuseCond_sodium_ts <- ts(NeuseWQ_short$AvgNa_mg.L, frequency = 12)
+NeuseCond_sodium_decomp <- stl(NeuseCond_sodium_ts, s.window = "periodic")
+plot(NeuseCond_sodium_decomp)
+
+
+
 #Creating Time Series for flow data
 NeuseFlow_ts <- ts(NeuseFlow_processed[[2]], frequency =365)
 NeuseFlow_decomp <- stl(NeuseFlow_ts, s.window = "periodic")
 
 plot(NeuseFlow_decomp)
 
-#Testing for seasonal trends within conducivity
+#Testing for seasonal trends within conductivity
 Neuse_seasonality_trends_Conductivity <- Kendall::SeasonalMannKendall(NeuseCond_ts)
 
+
 Neuse_seasonality_trends_Conductivity
+summary(Neuse_seasonality_trends_Conductivity)
+
+#Calcium
+Neuse_seasonality_trends_Conductivity_Ca <- Kendall::SeasonalMannKendall(NeuseCond_Calcium_ts)
+Neuse_seasonality_trends_Conductivity_Ca
+summary(Neuse_seasonality_trends_Conductivity_Ca)
+
+#Magnesium
+Neuse_seasonality_trends_Conductivity_Mg <- Kendall::SeasonalMannKendall(NeuseCond_magnesium_ts)
+Neuse_seasonality_trends_Conductivity_Mg
+summary(Neuse_seasonality_trends_Conductivity_Mg)
+
+#Sodium
+Neuse_seasonality_trends_Conductivity_Na <- Kendall::SeasonalMannKendall(NeuseCond_sodium_ts)
+Neuse_seasonality_trends_Conductivity_Na
+summary(Neuse_seasonality_trends_Conductivity_Na)
+
 
 #Testing for seasonality within Flow data
 Neuse_seasonality_trends_Flow <- Kendall::SeasonalMannKendall(NeuseFlow_ts)
 
 Neuse_seasonality_trends_Flow
+summary(Neuse_seasonality_trends_Flow)
 ```
 
 
@@ -315,11 +361,8 @@ Mg.plot
 Na.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
   labs(x = "Date", y = expression("Sodium (mg/L)"))
-<<<<<<< HEAD
-
-=======
 Na.plot
->>>>>>> 4cf799b206d7ade0e3054003bf3da16f34afcfae
+
 ```
 
 ```{r Visualise all three components together, echo=FALSE, fig.align='left'}
@@ -330,17 +373,8 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
           ncol = 1,
           align = "hv")
 ```
-<<<<<<< HEAD
 
 
-```{r add on top of seasonality graph, echo= FALSE, fig.align='left'}
-#Get everything on the same graph and check for trends
-
-
-```
-
-
-=======
 ```{r Visualise salts and conductivity, echo=FALSE, fig.align='left', fig.cap="Specific Conductivity and salts in the Neuse River from 2013 through 2021"}
 #plot spec cond and the salts on the same plot to look for patterns
 ggplot(NeuseWQ_short) +
@@ -352,9 +386,32 @@ ggplot(NeuseWQ_short) +
   labs(x = "Date", y = "Concentration", color = "Variable")
 ```
 
->>>>>>> 4cf799b206d7ade0e3054003bf3da16f34afcfae
+
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
+
+
+```{r}
+#IN PROGRESS, not complete
+
+#test for stationary, if p<0.05, the data is stationary (& we can run ARMA)
+
+adf.test(NeuseCond_ts)
+
+#Test for autocorrelation
+
+forecast::Acf(NeuseCond_ts, type = "correlation", plot = TRUE, calc.ci= TRUE)
+
+forecast::Pacf(NeuseCond_ts)
+
+#attempt to forecast scenario
+Conductivity_forecast <- forecast::forecast(NeuseCond_ts)
+
+plot(Conductivity_forecast %>%
+     labs(title = "Forecasts from ETS (A,N,N)"), x = "")
+
+
+```
 
 
 
