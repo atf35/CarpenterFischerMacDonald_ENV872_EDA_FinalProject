@@ -1,5 +1,5 @@
 ---
-output: pdf
+output:
   pdf_document:
     keep_tex: yes
     fig_caption: yes
@@ -12,6 +12,7 @@ fontsize: 12pt
 mainfont: Times New Roman
 editor_options: 
   chunk_output_type: console
+  
 ---
 
 \newpage
@@ -43,7 +44,7 @@ library(maps)
 library(knitr)
 library(nhdplusTools)
 library(cowplot)
-library(fable)
+#library(fable)
 library(tseries)
 
 # Set ggplot theme
@@ -100,6 +101,14 @@ NeuseFlow         | Discharge data collected at USGS gage 02089500
 
 # Exploratory Analysis (Atalie)
 
+```{r Map of Neuse Watershed, eval=FALSE, include=FALSE}
+
+####need to fix this...
+
+plot_nhdplus("USGS-02089500", streamorder = 3) 
+```
+
+
 The first step we took in our initial exploratory analysis was to wrangle the water quality (WQ) dataset to include only the columns of interest. This included the sampling dates and concentrations for specific conductance, calcium (Ca), sodium (Na), and magnesium (Mg), which were each given separate columns. This dataset contains monthly observations, however, not necessarily sampled on the first of each month. We wrangled the WQ dataset to round the dates to the first of the month to ensure that there are evenly spaced time steps across the years, a necessary condition for time series analyses. 
 
 ```{r WQ wrangling, include=FALSE}
@@ -140,7 +149,7 @@ write.csv(NeuseWQ_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQ_
 write.csv(NeuseWQ_monthly, row.names = TRUE, file = "./Data/Processed/NeuseWQ_monthly.csv")
 ```
 
-We plotted the specific conductance over time to visualize any gaps in our dataset. We see that the WQ dataset contains many periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and we will therefore not require any interpolation of this dataset. 
+We plotted the specific conductance over time to visualize any gaps in our dataset. We see that the WQ dataset contains many long periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and we will therefore not require any interpolation of this dataset. 
 
 ```{r Visualize monthly WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River over time to determine the need for interpolation."}
 ggplot(NeuseWQ_monthly) +
@@ -148,9 +157,7 @@ ggplot(NeuseWQ_monthly) +
   labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
 ```
 
-
-
-```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River from 2013 through 2021."}
+```{r Visualize 2013-2021 WQ data (Conductance), echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River from 2013 through 2021."}
 NeuseWQ_short <- NeuseWQ_monthly %>% 
   filter(Date_monthrounded >= "2013-01-01" & Date_monthrounded < "2022-01-01")
 
@@ -159,13 +166,13 @@ ggplot(NeuseWQ_short) +
   labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
 ```
 
-```{r}
+```{r Water Quality Dataset Summary, echo=FALSE}
 summary(NeuseWQ_short)
 ```
 
 We are also interested in the flow of the Neuse River because this factor may affect salinity. For example, higher discharges may dilute any salinity and drier periods may reflect higher salt content. We started by wrangling the flow dataset to include the parameters of interest, sampling date and discharge. 
 
-```{r Flow wrangling}
+```{r Flow wrangling, include=FALSE}
 # flow dataset
 NeuseFlow_processed <- NeuseFlow %>%
   select(ActivityStartDate = Date, discharge_cfs = X_00060_00003) %>% 
@@ -176,127 +183,89 @@ NeuseFlow_processed <- NeuseFlow %>%
 ## check even time steps
 Days <- data.frame(Days = seq.Date(from = as.Date("2013-01-01"), to = as.Date("2022-01-01"), by = "day"))
 NeuseFlow_days <- left_join(Days, NeuseFlow_processed, by = c("Days" = "ActivityStartDate"))
-
 summary(NeuseFlow_days) # no NA's in dataset
-
 
 # write files to csv
 write.csv(NeuseFlow_processed, row.names = TRUE, file = "./Data/Processed/NeuseFlow_processed.csv")
 write.csv(NeuseFlow_days, row.names = TRUE, file = "./Data/Processed/NeuseFlow_days.csv")
 ```
 
-```{r Discharge over time}
+```{r Discharge summary, echo=FALSE}
+summary(NeuseFlow_processed) #no NAs in the dataset
+```
+
+```{r Discharge over time, echo=FALSE, fig.align='left', fig.cap="Discharge in the Neuse River from 2013 through 2021."}
 ggplot(NeuseFlow_processed) +
   geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
   labs(x = "Date", y = "Discharge (cfs)") +
   scale_y_log10()
 ```
 
-```{r Discharge summary}
-summary(NeuseFlow_processed) #no NAs in the dataset
-```
-
-```{r}
-## Combine datasets
-NeuseWQFlow_processed <- NeuseWQ_processed %>%
-  full_join(., NeuseFlow_processed)
-
-NeuseWQFlow_monthly <- left_join(Months, NeuseWQFlow_processed)
-
-
-write.csv(NeuseWQFlow_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQFlow_processed.csv")
-```
-As an initial step in the exploratory analysis, we summarized both the water quality and flow datasets to find the number of missing observations. 
-
-We looked at specific conductivity and discharge over time to visualize any gaps in our datasets. An initial look at specific conductance over time shows a gap in our dataset in the mid-2000's (Figure []). This gap will need to be filled before conducting any time series analyses on this dataset. 
-
-- missing data, interpolation
-- what do we have
-- usable for next steps? 
-- wrangling
-
-
-```{r Dataset Summaries, echo=FALSE}
-summary(NeuseWQ_processed) #contains NA in dataset
-summary(NeuseFlow_processed)
-
-summary(NeuseWQFlow_processed)
-
-#not working correctly
-#NeuseWQFlow_summary <- NeuseWQFlow_processed %>% 
-#    group_by(Variable) %>% 
-#    summarise(Mean = mean(Value),
-#              Min = min(Value),
-#              Max = max(Value),
-#              SD = sd(Value))
-
-```
-
-```{r display summary tables, echo=FALSE}
-#not working properly
-#kable(NeuseWQFlow_summary, caption = "Summary")
-```
-
-```{r Discharge over time}
-ggplot(NeuseFlow_processed) +
-  geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
-  labs(title = "Flow over time in the Neuse River",
-       x = "Sample Date", y = expression("Discharge (cfs)"))
-```
-
-
-
-
 \newpage
 
 # Analysis
 
-## Question 1: < How does specific conductance vary seasonally? >
-Answer: After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant in seasonality for conductivity (p = 0.25276). However, we can conclude seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
+## Question 1: How does specific conductance vary seasonally?
+After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant in seasonality for conductivity (p = 0.25276). However, we can conclude seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
 
-Dataset           | P Value
+Measure           | P-value
 ------------------|------------------------
 Conductivity      | 0.25276
 +Calcium          | 0.1038
 +Magnesium        | 0.29151
 +Sodium           | 0.091911
-Flow Data         | 3.368e-07
+Discharge         | 3.368e-07
 
-```{r}
+```{r Conductivity time series and decomp, include=FALSE}
 #Creating Time Series for conductivity
 NeuseCond_ts <- ts(NeuseWQ_short[[5]], frequency = 12)
 NeuseCond_decomp <- stl(NeuseCond_ts, s.window = "periodic")
+```
 
+```{r Plot of Conductivity Time Series Decomp, echo=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Conductivity in the Neuse River."}
 plot(NeuseCond_decomp)
+```
 
+```{r Salt time series and decomps, include=FALSE}
 #Decomposing by Mineral
 #Calcium
 NeuseCond_Calcium_ts <- ts(NeuseWQ_short$AvgCa_mg.L, frequency = 12)
 NeuseCond_Calcium_decomp <- stl(NeuseCond_Calcium_ts, s.window = "periodic")
-plot(NeuseCond_Calcium_decomp)
 
 #Magnesium
 NeuseCond_magnesium_ts <- ts(NeuseWQ_short$AvgMg_mg.L, frequency = 12)
 NeuseCond_magneisum_decomp <- stl(NeuseCond_magnesium_ts, s.window = "periodic")
-plot(NeuseCond_magnesium_decomp)
 
 #Sodium
 NeuseCond_sodium_ts <- ts(NeuseWQ_short$AvgNa_mg.L, frequency = 12)
 NeuseCond_sodium_decomp <- stl(NeuseCond_sodium_ts, s.window = "periodic")
-plot(NeuseCond_sodium_decomp)
+```
 
+```{r Plot of Calcium Time Series Decomp, echo=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Calcium in the Neuse River."}
+plot(NeuseCond_Calcium_decomp, main = "Calcium")
+```
 
+```{r Plot of Magnesium Time Series Decomp, echo=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Magnesium in the Neuse River."}
+plot(NeuseCond_magneisum_decomp, main = "Magnesium")
+```
 
+```{r Plot of Sodium Time Series Decomp, echo=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Sodium in the Neuse River."}
+plot(NeuseCond_sodium_decomp, main = "Sodium")
+```
+
+```{r Discharge time series and decomp, include=FALSE}
 #Creating Time Series for flow data
 NeuseFlow_ts <- ts(NeuseFlow_processed[[2]], frequency =365)
 NeuseFlow_decomp <- stl(NeuseFlow_ts, s.window = "periodic")
+```
 
+```{r Plot of Discharge Time Series Decomposition, echo=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Discharge in the Neuse River."}
 plot(NeuseFlow_decomp)
+```
 
-#Testing for seasonal trends within conductivity
+```{r Testing for Seasonality, echo=FALSE}
+#Conductivity
 Neuse_seasonality_trends_Conductivity <- Kendall::SeasonalMannKendall(NeuseCond_ts)
-
-
 Neuse_seasonality_trends_Conductivity
 summary(Neuse_seasonality_trends_Conductivity)
 
@@ -318,45 +287,33 @@ summary(Neuse_seasonality_trends_Conductivity_Na)
 
 #Testing for seasonality within Flow data
 Neuse_seasonality_trends_Flow <- Kendall::SeasonalMannKendall(NeuseFlow_ts)
-
 Neuse_seasonality_trends_Flow
 summary(Neuse_seasonality_trends_Flow)
 ```
 
 
-## Question 2: <Is calcium, magnesium, or sodium the driver of specific conductance?>
+## Question 2: Is calcium, magnesium, or sodium the driver of specific conductance?
 
 
-
-
-```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
+```{r Visualize 2013-2021 Conductivity, echo=FALSE, fig.align='left', fig.cap="Conductivity in the Neuse River from 2013 through 2021."}
 #plot sodium over same shorter time period
 ggplot(NeuseWQ_short) +
-  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
-  labs(x = "Date", y = expression("Sodium (mg/L)"))
+  geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
+  labs(x = "Date", y = expression("Specific Conductivity"))
 ```
 
-```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Calcium in the Neuse River from 2013 through 2021."}
+```{r Visualize 2013-2021 WQ data, include=FALSE}
 #plot calcium over same shorter time period as specific conductivity
 Ca.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
   labs(x = "", y = expression("Calcium (mg/L)"))
-<<<<<<< HEAD
 
-=======
-Ca.plot
->>>>>>> 4cf799b206d7ade0e3054003bf3da16f34afcfae
-```
-
-```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Magnesium in the Neuse River from 2013 through 2021."}
 #plot Mg over same shorter time period
 Mg.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
   labs(x = "", y = expression("Magnesium (mg/L"))
 Mg.plot
-```
 
-```{r Visualize 2013-2021 WQ data, echo=FALSE, fig.align='left', fig.cap="Sodium in the Neuse River from 2013 through 2021."}
 #plot sodium over same shorter time period
 Na.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
@@ -365,24 +322,20 @@ Na.plot
 
 ```
 
-```{r Visualise all three components together, echo=FALSE, fig.align='left'}
+```{r Visualise all three components together, echo=FALSE, fig.align='left', fig.cap="Calcium, Magnesium, and Sodium in the Neuse River from 2013 through 2021"}
 #now lets look at all three salt ions over the same time period
-
-
 plot_grid(Ca.plot, Mg.plot, Na.plot,
           ncol = 1,
           align = "hv")
 ```
 
-
 ```{r Visualise salts and conductivity, echo=FALSE, fig.align='left', fig.cap="Specific Conductivity and salts in the Neuse River from 2013 through 2021"}
 #plot spec cond and the salts on the same plot to look for patterns
 ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
-  geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
-  geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
-  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
-  scale_color_viridis_d() +
+  geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L), color="red") +
+  geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L), color="blue") +
+  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L), color="yellow3") +
   labs(x = "Date", y = "Concentration", color = "Variable")
 ```
 
@@ -391,8 +344,9 @@ ggplot(NeuseWQ_short) +
 
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 #IN PROGRESS, not complete
+#####i set this chunk to not run when knitting until its completed (-atalie)
 
 #test for stationary, if p<0.05, the data is stationary (& we can run ARMA)
 
@@ -416,7 +370,7 @@ plot(Conductivity_forecast %>%
 
 
 
-```{r}
+```{r STRAIGHT FROM WDA, eval=FALSE, include=FALSE}
 # Recall there are a lot of parameters measured at the site
 NeuseParams <- whatNWISdata(siteNumbers = "02089500")
 
