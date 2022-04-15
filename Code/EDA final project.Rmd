@@ -61,14 +61,14 @@ NeuseWQ <- readWQPqw(siteNumbers = "USGS-02089500", # Neuse River at Kinston, NC
                                      "90095"),  # Specific conductance, uS/cm
                      startDate = "1976-01-01",
                      endDate = "")
-write.csv(NeuseWQ, row.names = TRUE, file = "../Data/Raw/NeuseWQ_raw.csv")
+#write.csv(NeuseWQ, row.names = TRUE, file = "../Data/Raw/NeuseWQ_raw.csv")
 
 #load discharge data for Neuse River at Kinston, NC
 NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
                      parameterCd = "00060", # discharge (cfs)
                      startDate = "1976-01-01",
                      endDate = "")
-write.csv(NeuseFlow, row.names = TRUE, file = "../Data/Raw/NeuseFlow_raw.csv")
+#write.csv(NeuseFlow, row.names = TRUE, file = "../Data/Raw/NeuseFlow_raw.csv")
 ```
 
 # Rationale and Research Questions (Kathlyn)
@@ -86,9 +86,9 @@ We used the following research questions to guide our work:
 
 # Dataset Information (Jack)
 
-Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. USGS gage stations typically collect discharge, and a subset collect water quality data as well. This water quality data may include nutrient concentrations, concentrations of chlorophyll a, specific conductivity, and concentrations of certain ions. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization. 
-
-To obtain both sets of data, we used the dataRetrieval package to connect directly to the NWIS database and pull water quality and discharge data without needing to download it first. Both sets of data are pulled starting in 1976, and end at the most recent data point in the database in 2022. 
+Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. USGS gage stations typically collect discharge and a subset collect water quality data. This water quality data may include nutrient concentrations, concentrations of chlorophyll a, specific conductivity, and concentrations of certain ions. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization. 
+ 
+To obtain both sets of data,the dataRetrieval package was used to connect directly to the NWIS database and pull water quality and discharge data without needing to download it first. Both sets of data are pulled starting in 1976 and end at the most recent data point in the database in 2022. 
 
 Dataset           | Info
 ------------------|------------------------
@@ -103,6 +103,7 @@ NeuseFlow         | Discharge data collected at USGS gage 02089500
 ```{r Map of Neuse Watershed, eval=FALSE, include=FALSE}
 
 ####need to fix this...
+# what do we need to fix?
 
 plot_nhdplus("USGS-02089500", streamorder = 3) 
 ```
@@ -144,11 +145,11 @@ NeuseWQ_monthly <- NeuseWQ_monthly %>%
 
 
 # write csv file for WQ data
-write.csv(NeuseWQ_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQ_processed.csv")
-write.csv(NeuseWQ_monthly, row.names = TRUE, file = "./Data/Processed/NeuseWQ_monthly.csv")
+#write.csv(NeuseWQ_processed, row.names = TRUE, file = "./Data/Processed/NeuseWQ_processed.csv")
+#write.csv(NeuseWQ_monthly, row.names = TRUE, file = "./Data/Processed/NeuseWQ_monthly.csv")
 ```
 
-We plotted the specific conductance over time to visualize any gaps in our dataset. We see that the WQ dataset contains many long periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and we will therefore not require any interpolation of this dataset. 
+We plotted the specific conductance over time to visualize any gaps in our dataset. We see that the WQ dataset contains many long periods of missing data for specific conductance. Since these missing periods frequently span across many years, we chose to look at WQ data from 2013 through 2021. There are no missing data points from this period of time, and will therefore not require any interpolation of this dataset. 
 
 ```{r Visualize monthly WQ data, echo=FALSE, fig.align='left', fig.cap="Specific Conductance in the Neuse River", warning=FALSE, include=TRUE}
 ggplot(NeuseWQ_monthly) +
@@ -185,8 +186,8 @@ NeuseFlow_days <- left_join(Days, NeuseFlow_processed, by = c("Days" = "Activity
 summary(NeuseFlow_days) # no NA's in dataset
 
 # write files to csv
-write.csv(NeuseFlow_processed, row.names = TRUE, file = "./Data/Processed/NeuseFlow_processed.csv")
-write.csv(NeuseFlow_days, row.names = TRUE, file = "./Data/Processed/NeuseFlow_days.csv")
+#write.csv(NeuseFlow_processed, row.names = TRUE, file = "./Data/Processed/NeuseFlow_processed.csv")
+#write.csv(NeuseFlow_days, row.names = TRUE, file = "./Data/Processed/NeuseFlow_days.csv")
 ```
 
 ```{r Discharge summary, include=TRUE, echo=FALSE, message=FALSE}
@@ -205,7 +206,7 @@ ggplot(NeuseFlow_processed) +
 # Analysis
 
 ## Question 1: How does specific conductance vary seasonally?
-After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant in seasonality for conductivity (p = 0.25276). However, we can conclude seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
+After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant seasonality component for conductivity (p = 0.25276). Similarly, there is no significant seasonal component to the data for each salt ion. However, we can conclude that there is significant seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
 
 Measure           | P-value
 ------------------|------------------------
@@ -290,9 +291,32 @@ Neuse_seasonality_trends_Flow
 summary(Neuse_seasonality_trends_Flow)
 ```
 
+```{r Plotting by DOY, include=TRUE, echo=FALSE, message=FALSE}
+NeuseWQ_DOY <- NeuseWQ_processed %>%
+  filter(Year >= 2013 & Year <= 2022) %>%
+  mutate(DOY = yday(ActivityStartDate)) 
+saltsvspc_plot <- ggplot(NeuseWQ_DOY)+
+  geom_point(alpha = 0.5, size = 0.5, aes(x = SpC_uS.cm, y = Mg_mg.L, color = DOY)) +
+  geom_point(alpha = 0.5, size = 0.7, aes(x = SpC_uS.cm, y = Ca_mg.L, color = DOY)) +
+  geom_point(alpha = 0.5, size = 1, aes(x = SpC_uS.cm, y = Na_mg.L, color = DOY)) +
+  scale_color_viridis_c()+
+  labs(x = "Spec. Cond.", y = "mg/L", color = "DOY", title = "Salt vs. Specific Conductivity across the Day of Year")
+spcDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = SpC_uS.cm)) +
+  geom_line()
+spcDOY_plot
+MgDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = SpC_uS.cm)) +
+  geom_line()
+MgDOY_plot
+CaDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = Ca_mg.L)) +
+  geom_line()
+CaDOY_plot
+NaDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = Na_mg.L)) +
+  geom_line()
+NaDOY_plot
+```
 
 ## Question 2: Is calcium, magnesium, or sodium the driver of specific conductance?
-
+While there isn't much seasonality in the specific conductance found at this site in the Neuse, the salt ions measured there can still be examined to see if one or another appears to be driving the conductivity. It appears as though sodium is the ion most closely associated with the specific conductivity found at this site, as this ion both most closely aligns with the patterns seen in the data and also is the most abundant ion.
 
 ```{r Visualize 2013-2021 Conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Conductivity in the Neuse River from 2013 through 2021."}
 #plot sodium over same shorter time period
@@ -328,16 +352,24 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
           align = "hv")
 ```
 
-```{r Visualise salts and conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Specific Conductivity and salts in the Neuse River from 2013 through 2021"}
+```{r Visualise salts and conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Specific Conductivity and Salts in the Neuse River from 2013 through 2021"}
 #plot spec cond and the salts on the same plot to look for patterns
 ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
   geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L), color="red") +
   geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L), color="blue") +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L), color="yellow3") +
+  scale_y_log10()+
   labs(x = "Date", y = "Concentration", color = "Variable")
 ```
 
+```{r Correlation b/t Salts and Specific Conductivity, echo=FALSE}
+ggplot(NeuseWQ_short) +
+  geom_point(aes(x = AvgSpC_uS.cm, y = AvgNa_mg.L, color = "Na")) +
+  geom_point(aes(x = AvgSpC_uS.cm, y = AvgCa_mg.L, color = "Ca")) +
+  geom_point(aes(x = AvgSpC_uS.cm, y = AvgMg_mg.L, color = "Mg")) +
+  labs(x = "Specific Conductivity", y = "Variable")
+```
 
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
@@ -448,9 +480,4 @@ ggplot(catchment) +
 \newpage
 
 # Summary and Conclusions
-
-
-\newpage
-
-# References
-<add references here if relevant, otherwise delete this section> 
+The Neuse River at Kinston does not show strong seasonal trends in salinity. Specific conductance, the proxy used to examine salinity, showed marginal seasonal trends when examined using both a time series decomposition and when plotted for the day of the year. Sodium appears to have the strongest correlation with specific conductance, indicating that it perhaps is the main driver of the salinity that does exist in the Neuse River. Magnesium and calcium had a much lower correlation, showing that they do not influence the overall salinity as much as sodium. Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. 
