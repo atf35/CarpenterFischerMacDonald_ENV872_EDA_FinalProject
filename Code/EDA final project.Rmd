@@ -319,7 +319,7 @@ NaDOY_plot
 While there isn't much seasonality in the specific conductance found at this site in the Neuse, the salt ions measured there can still be examined to see if one or another appears to be driving the conductivity. It appears as though sodium is the ion most closely associated with the specific conductivity found at this site, as this ion both most closely aligns with the patterns seen in the data and also is the most abundant ion.
 
 ```{r Visualize 2013-2021 Conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Conductivity in the Neuse River from 2013 through 2021."}
-#plot sodium over same shorter time period
+#plot specific conductivity over same shorter time period
 ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
   labs(x = "Date", y = expression("Specific Conductivity"))
@@ -369,6 +369,15 @@ ggplot(NeuseWQ_short) +
   geom_point(aes(x = AvgSpC_uS.cm, y = AvgCa_mg.L, color = "Ca")) +
   geom_point(aes(x = AvgSpC_uS.cm, y = AvgMg_mg.L, color = "Mg")) +
   labs(x = "Specific Conductivity", y = "Variable")
+
+Na_lm <- lm(NeuseWQ_short$AvgNa_mg.L ~ NeuseWQ_short$AvgSpC_uS.cm)
+summary(Na_lm)
+Ca_lm <- lm(NeuseWQ_short$AvgCa_mg.L ~ NeuseWQ_short$AvgSpC_uS.cm)
+summary(Ca_lm)
+Mg_lm <- lm(NeuseWQ_short$AvgMg_mg.L ~ NeuseWQ_short$AvgSpC_uS.cm)
+summary(Mg_lm)
+
+
 ```
 
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
@@ -476,8 +485,7 @@ ggplot(catchment) +
 
 
 
-
 \newpage
 
 # Summary and Conclusions
-The Neuse River at Kinston does not show strong seasonal trends in salinity. Specific conductance, the proxy used to examine salinity, showed marginal seasonal trends when examined using both a time series decomposition and when plotted for the day of the year. Sodium appears to have the strongest correlation with specific conductance, indicating that it perhaps is the main driver of the salinity that does exist in the Neuse River. Magnesium and calcium had a much lower correlation, showing that they do not influence the overall salinity as much as sodium. Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. 
+The Neuse River at Kinston does not show strong seasonal trends in salinity. Specific conductance, the proxy used to examine salinity, showed marginal seasonal trends when examined using both a time series decomposition and when plotted by the day of the year. Sodium appears to have the strongest correlation with specific conductance, indicating that it perhaps is the main driver of the salinity that does exist in the Neuse River. Magnesium and calcium had a much lower correlation with specific conductance, showing that they do not influence the overall salinity as much as sodium. Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. 
