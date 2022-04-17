@@ -6,8 +6,8 @@ output:
     number_sections: yes
     toc: yes
 geometry: margin=2.54cm
-title: "Seasonal Salt Content, in the Neuse River"
-subtitle: "Web address for GitHub repository"
+title: "Seasonal Salt Content in the Neuse River"
+subtitle: "https://github.com/atf35/CarpenterFischerMacDonald_ENV872_EDA_FinalProject"
 author: "Atalie Fischer, Kathlyn MacDonald, Jack Carpenter"
 fontsize: 12pt
 mainfont: Times New Roman
@@ -16,6 +16,7 @@ mainfont: Times New Roman
 
 \newpage
 \tableofcontents 
+
 \newpage
 \listoftables 
 \newpage
@@ -71,10 +72,10 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
 #write.csv(NeuseFlow, row.names = TRUE, file = "../Data/Raw/NeuseFlow_raw.csv")
 ```
 
-# Rationale and Research Questions (Kathlyn)
-The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. We are only beginning to understand the impact of human action on water bodies. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of water quality. Changes in conductivity over time suggest a potential pollutant entering the system. 
+# Rationale and Research Questions
+The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. We are only beginning to understand the impact of human action on water bodies. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of salinity, a key component of water quality. Changes in conductivity over time suggest a potential pollutant entering the system. 
 
-For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022) (???, check on this bc of the NAs). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). ADD MORE!
+For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022) (???, check on this bc of the NAs). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). We also know from living in the headwaters of this river that salt is applied to roadways in the upper watershed in the winter (albeit infrequently). The gage at Kinston is much farther down the river than we know salting occurs, so we are really examining if there are significant downstream effects of road salting. ADD MORE?
 
 We used the following research questions to guide our work: 
 > 1. How does specific conductance vary seasonally? 
@@ -84,21 +85,27 @@ We used the following research questions to guide our work:
 
 \newpage
 
-# Dataset Information (Jack)
+# Dataset Information
 
 Neuse River water quality and discharge data at Kinston, North Carolina. The gage information comes from the United States Geologic Survey (USGS) National Water Information Systems (NWIS) database. USGS gage stations typically collect discharge and a subset collect water quality data. This water quality data may include nutrient concentrations, concentrations of chlorophyll a, specific conductivity, and concentrations of certain ions. Since seasonal salinity trends and their potential sources are the focus of this study, the water quality data being examined includes specific conductivity and concentrations of calcium, magnesium, and sodium in the water column. Specific conductivity will be used as a proxy for salinization, and the relative amounts of each salt ion will be examined in the hopes of identifying a potential source of any seasonal salinity increases, in particular the contribution of road salts to salinization. 
  
 To obtain both sets of data,the dataRetrieval package was used to connect directly to the NWIS database and pull water quality and discharge data without needing to download it first. Both sets of data are pulled starting in 1976 and end at the most recent data point in the database in 2022. 
 
+Table 1: Summary of the data used.
+
 Dataset           | Info
 ------------------|------------------------
 NeuseWQ           | Water quality data collected at USGS gage 02089500
 NeuseFlow         | Discharge data collected at USGS gage 02089500
+Retrieved from    | USGS NWIS database with dataRetrieval package
+Variables         | Specific conductivity, calcium, sodium, & magnesium concentrations, sample date, discharge
+Date Range        | 1976 through 2022, wrangled to 2013 through 2022
+
 
 
 \newpage
 
-# Exploratory Analysis (Atalie)
+# Exploratory Analysis
 
 ```{r Map of Neuse Watershed, eval=FALSE, include=FALSE}
 
@@ -166,7 +173,7 @@ ggplot(NeuseWQ_short) +
   labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
 ```
 
-```{r Water Quality Dataset Summary, include=TRUE, echo=FALSE}
+```{r Water Quality Dataset Summary, include=FALSE, echo=FALSE}
 summary(NeuseWQ_short)
 ```
 
@@ -190,7 +197,7 @@ summary(NeuseFlow_days) # no NA's in dataset
 #write.csv(NeuseFlow_days, row.names = TRUE, file = "./Data/Processed/NeuseFlow_days.csv")
 ```
 
-```{r Discharge summary, include=TRUE, echo=FALSE, message=FALSE}
+```{r Discharge summary, include=FALSE, echo=FALSE, message=FALSE}
 summary(NeuseFlow_processed) #no NAs in the dataset
 ```
 
@@ -206,7 +213,9 @@ ggplot(NeuseFlow_processed) +
 # Analysis
 
 ## Question 1: How does specific conductance vary seasonally?
-After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant seasonality component for conductivity (p = 0.25276). Similarly, there is no significant seasonal component to the data for each salt ion. However, we can conclude that there is significant seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
+After running a seasonal MannKendall test, we have determined that for the Nuese river there is no significant seasonality component for conductivity nor any of the salt ions. Looking at the time series decomposition, we can see that there is a discernable seasonality component, but it is very very small relative to the overall data. Similarly, there is no significant trend over the study period either (see p-values in table 2 below), indicating that over our examination period there is some degree of stationarity with regard to the salinity levels in the Neuse at Kinston. We can conclude that there is some seasonality in flow data, not a ton of difference depending on the season, but there is a significant trend of increasing flow year after year (p = 3.368e-07). This increasing trend in flow may be masking increases in salt content in the river, as increased flow will dilute an increased salt content to the same concentration, hiding an increase in salt deposition to the river.
+
+Table 2: P-values for Seasonal Mann-Kendall tests.
 
 Measure           | P-value
 ------------------|------------------------
@@ -263,7 +272,7 @@ NeuseFlow_decomp <- stl(NeuseFlow_ts, s.window = "periodic")
 plot(NeuseFlow_decomp)
 ```
 
-```{r Testing for Seasonality, include=TRUE, echo=FALSE, message=FALSE}
+```{r Testing for Seasonality, include=FALSE, echo=FALSE, message=FALSE}
 #Conductivity
 Neuse_seasonality_trends_Conductivity <- Kendall::SeasonalMannKendall(NeuseCond_ts)
 Neuse_seasonality_trends_Conductivity
@@ -291,16 +300,24 @@ Neuse_seasonality_trends_Flow
 summary(Neuse_seasonality_trends_Flow)
 ```
 
-```{r Plotting by DOY, include=TRUE, echo=FALSE, message=FALSE}
+When plotted by the day of the year (DOY), we can see that there isn't much of a correlation between each specific conductivity or salt concentration over the year. Higher specific conductivity is correlated with higher concentrations of each salt, which is expected (more salt ions = higher salinity), but there is no discernible pattern related to the DOY. This corroborates our time series analysis that there is not a significant seasonal component the salinity of the Neuse at Kinston. 
+```{r Create DOY column, include=FALSE, echo=FALSE, message=FALSE}
 NeuseWQ_DOY <- NeuseWQ_processed %>%
   filter(Year >= 2013 & Year <= 2022) %>%
   mutate(DOY = yday(ActivityStartDate)) 
+```
+
+```{r Plot by DOY, include=TRUE, echo=FALSE, fig.align='left', fig.cap="Salts by Specific Conductivity over the Year"}
 saltsvspc_plot <- ggplot(NeuseWQ_DOY)+
   geom_point(alpha = 0.5, size = 0.5, aes(x = SpC_uS.cm, y = Mg_mg.L, color = DOY)) +
   geom_point(alpha = 0.5, size = 0.7, aes(x = SpC_uS.cm, y = Ca_mg.L, color = DOY)) +
   geom_point(alpha = 0.5, size = 1, aes(x = SpC_uS.cm, y = Na_mg.L, color = DOY)) +
   scale_color_viridis_c()+
-  labs(x = "Spec. Cond.", y = "mg/L", color = "DOY", title = "Salt vs. Specific Conductivity across the Day of Year")
+  labs(x = "Spec. Cond.", y = "mg/L", color = "DOY")
+saltsvspc_plot
+```
+
+``` {r Individual DOY plots, include=FALSE}
 spcDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = SpC_uS.cm)) +
   geom_line()
 spcDOY_plot
@@ -382,7 +399,7 @@ summary(Mg_lm)
 
 ##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
 
-
+Are we still evaluating this? 
 
 ```{r eval=FALSE, include=FALSE}
 #IN PROGRESS, not complete
@@ -488,4 +505,8 @@ ggplot(catchment) +
 \newpage
 
 # Summary and Conclusions
-The Neuse River at Kinston does not show strong seasonal trends in salinity. Specific conductance, the proxy used to examine salinity, showed marginal seasonal trends when examined using both a time series decomposition and when plotted by the day of the year. Sodium appears to have the strongest correlation with specific conductance, indicating that it perhaps is the main driver of the salinity that does exist in the Neuse River. Magnesium and calcium had a much lower correlation with specific conductance, showing that they do not influence the overall salinity as much as sodium. Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. 
+The Neuse River at Kinston does not show strong seasonality in salinity and appears to show stationarity in salinity levels over the study period. Specific conductance, the proxy used to examine salinity, showed marginal seasonal trends when examined with a time series decomposition and no discernible pattern when plotted by the day of the year. Discharge similarly shows some marginal seasonality, but also shows a slight increasing trend. This slight increasing trend is interesting because it could hide a similarly-scaled increase in salinity over the same time period, as increased discharge would dilute more salinity effectively. 
+
+Sodium appears to have the strongest impact on specific conductance, indicating that it perhaps is the main driver of the salinity that does exist in the Neuse River. Sodium is the most abundant ion in the water, magnesium and calcium had a much lower concentration. Sodium also appears to have a nearly 1:1 correlation with specific conductivity, as seen in the DOY plot where they are plotted against each other. 
+
+Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. The location of Kinston in the watershed has been brought up in this analysis multiple times because it is significant. This gage site is potentially far enough downstream from where road salt would be used to have the salinity be insignificant by the time the water reached Kinston. This gage was chosen in oart because it actually measures the salinity data we were interested in (and in part because we knew it was a pretty good dataset), but a future study would be interesting to compare the data at Kinston to similarly collected data at a gage site further upstream, like at Clayton, which is relatively close to the major metro area around Raleigh where road salt is also likely to be more prevalent than in smaller population areas. 

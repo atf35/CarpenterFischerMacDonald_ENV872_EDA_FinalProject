@@ -5,10 +5,21 @@
 \documentclass[
   12pt,
 ]{article}
+\title{Seasonal Salt Content in the Neuse River}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{\url{https://github.com/atf35/CarpenterFischerMacDonald_ENV872_EDA_FinalProject}}
+\author{Atalie Fischer, Kathlyn MacDonald, Jack Carpenter}
+\date{}
+
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{ifxetex,ifluatex}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage{iftex}
+\ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
@@ -38,7 +49,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Seasonal Salt Content, in the Neuse River},
+  pdftitle={Seasonal Salt Content in the Neuse River},
   pdfauthor={Atalie Fischer, Kathlyn MacDonald, Jack Carpenter},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
@@ -71,20 +82,9 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
-\ifluatex
+\ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-
-\title{Seasonal Salt Content, in the Neuse River}
-\usepackage{etoolbox}
-\makeatletter
-\providecommand{\subtitle}[1]{% add subtitle to \maketitle
-  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
-}
-\makeatother
-\subtitle{Web address for GitHub repository}
-\author{Atalie Fischer, Kathlyn MacDonald, Jack Carpenter}
-\date{}
 
 \begin{document}
 \maketitle
@@ -94,25 +94,26 @@
 \tableofcontents
 }
 \newpage
-\tableofcontents 
+\tableofcontents
+
 \newpage
 \listoftables 
 \newpage
 \listoffigures 
 \newpage
 
-\hypertarget{rationale-and-research-questions-kathlyn}{%
-\section{Rationale and Research Questions
-(Kathlyn)}\label{rationale-and-research-questions-kathlyn}}
+\hypertarget{rationale-and-research-questions}{%
+\section{Rationale and Research
+Questions}\label{rationale-and-research-questions}}
 
 The maintenance of healthy and functioning water systems is critical not
 just to human life, but also to the survival of countless other species
 and their interconnected ecosystems. We are only beginning to understand
 the impact of human action on water bodies. Conductivity, or the ability
 of water to pass an electrical current via dissolved salts and other
-minerals, is a strong indicator of water quality. Changes in
-conductivity over time suggest a potential pollutant entering the
-system.
+minerals, is a strong indicator of salinity, a key component of water
+quality. Changes in conductivity over time suggest a potential pollutant
+entering the system.
 
 For this study, we chose to analyze how specific conductance can vary
 depending on the season. In particular, we wanted to address the impact
@@ -122,7 +123,12 @@ water conductivity, or are other minerals a significant factor? Here, we
 chose to analyze the Neuse River in Kinston, North Carolina over a 46
 year period (1976-2022) (???, check on this bc of the NAs). We chose
 this river due to familiarity with the data and its proximity to an
-urban center (Kinston pop = 20,398). ADD MORE!
+urban center (Kinston pop = 20,398). We also know from living in the
+headwaters of this river that salt is applied to roadways in the upper
+watershed in the winter (albeit infrequently). The gage at Kinston is
+much farther down the river than we know salting occurs, so we are
+really examining if there are significant downstream effects of road
+salting. ADD MORE?
 
 We used the following research questions to guide our work:
 \textgreater{} 1. How does specific conductance vary seasonally?
@@ -132,14 +138,14 @@ conductance in the future (forcasting trends)?
 
 \newpage
 
-\hypertarget{dataset-information-jack}{%
-\section{Dataset Information (Jack)}\label{dataset-information-jack}}
+\hypertarget{dataset-information}{%
+\section{Dataset Information}\label{dataset-information}}
 
 Neuse River water quality and discharge data at Kinston, North Carolina.
 The gage information comes from the United States Geologic Survey (USGS)
 National Water Information Systems (NWIS) database. USGS gage stations
-typically collect discharge, and a subset collect water quality data as
-well. This water quality data may include nutrient concentrations,
+typically collect discharge and a subset collect water quality data.
+This water quality data may include nutrient concentrations,
 concentrations of chlorophyll a, specific conductivity, and
 concentrations of certain ions. Since seasonal salinity trends and their
 potential sources are the focus of this study, the water quality data
@@ -150,27 +156,38 @@ amounts of each salt ion will be examined in the hopes of identifying a
 potential source of any seasonal salinity increases, in particular the
 contribution of road salts to salinization.
 
-To obtain both sets of data, we used the dataRetrieval package to
+To obtain both sets of data,the dataRetrieval package was used to
 connect directly to the NWIS database and pull water quality and
 discharge data without needing to download it first. Both sets of data
-are pulled starting in 1976, and end at the most recent data point in
-the database in 2022.
+are pulled starting in 1976 and end at the most recent data point in the
+database in 2022.
 
-\begin{longtable}[]{@{}ll@{}}
+Table 1: Summary of the data used.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.43}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.57}}@{}}
 \toprule
-Dataset & Info \\
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Info
+\end{minipage} \\
 \midrule
 \endhead
 NeuseWQ & Water quality data collected at USGS gage 02089500 \\
 NeuseFlow & Discharge data collected at USGS gage 02089500 \\
+Retrieved from & USGS NWIS database with dataRetrieval package \\
+Variables & Specific conductivity, calcium, sodium, \& magnesium
+concentrations, sample date, discharge \\
+Date Range & 1976 through 2022, wrangled to 2013 through 2022 \\
 \bottomrule
 \end{longtable}
 
 \newpage
 
-\hypertarget{exploratory-analysis-atalie}{%
-\section{Exploratory Analysis
-(Atalie)}\label{exploratory-analysis-atalie}}
+\hypertarget{exploratory-analysis}{%
+\section{Exploratory Analysis}\label{exploratory-analysis}}
 
 The first step we took in our initial exploratory analysis was to
 wrangle the water quality (WQ) dataset to include only the columns of
@@ -187,7 +204,7 @@ our dataset. We see that the WQ dataset contains many long periods of
 missing data for specific conductance. Since these missing periods
 frequently span across many years, we chose to look at WQ data from 2013
 through 2021. There are no missing data points from this period of time,
-and we will therefore not require any interpolation of this dataset.
+and will therefore not require any interpolation of this dataset.
 
 \begin{figure}
 
@@ -203,38 +220,11 @@ and we will therefore not require any interpolation of this dataset.
 \caption{Specific Conductance in the Neuse River from 2013 through 2021.}\label{fig:Visualize 2013-2021 WQ data (Conductance)}
 \end{figure}
 
-\begin{verbatim}
-##  Date_monthrounded      AvgCa_mg.L      AvgMg_mg.L      AvgNa_mg.L    
-##  Min.   :2013-01-01   Min.   :2.130   Min.   :0.828   Min.   : 1.560  
-##  1st Qu.:2015-03-24   1st Qu.:5.520   1st Qu.:2.151   1st Qu.: 7.939  
-##  Median :2017-06-16   Median :6.223   Median :2.478   Median :10.300  
-##  Mean   :2017-06-16   Mean   :6.434   Mean   :2.451   Mean   :11.245  
-##  3rd Qu.:2019-09-08   3rd Qu.:7.195   3rd Qu.:2.701   3rd Qu.:13.825  
-##  Max.   :2021-12-01   Max.   :9.805   Max.   :3.325   Max.   :26.700  
-##   AvgSpC_uS.cm   
-##  Min.   : 36.00  
-##  1st Qu.: 98.75  
-##  Median :115.50  
-##  Mean   :122.73  
-##  3rd Qu.:142.00  
-##  Max.   :215.00
-\end{verbatim}
-
 We are also interested in the flow of the Neuse River because this
 factor may affect salinity. For example, higher discharges may dilute
 any salinity and drier periods may reflect higher salt content. We
 started by wrangling the flow dataset to include the parameters of
 interest, sampling date and discharge.
-
-\begin{verbatim}
-##  ActivityStartDate    discharge_cfs        Year          Month       
-##  Min.   :2013-01-01   Min.   :  408   Min.   :2013   Min.   : 1.000  
-##  1st Qu.:2015-04-02   1st Qu.: 1190   1st Qu.:2015   1st Qu.: 4.000  
-##  Median :2017-07-02   Median : 2410   Median :2017   Median : 7.000  
-##  Mean   :2017-07-02   Mean   : 3556   Mean   :2017   Mean   : 6.522  
-##  3rd Qu.:2019-10-02   3rd Qu.: 4970   3rd Qu.:2019   3rd Qu.:10.000  
-##  Max.   :2022-01-01   Max.   :37900   Max.   :2022   Max.   :12.000
-\end{verbatim}
 
 \begin{figure}
 
@@ -252,11 +242,23 @@ interest, sampling date and discharge.
 \subsection{Question 1: How does specific conductance vary
 seasonally?}\label{question-1-how-does-specific-conductance-vary-seasonally}}
 
-After running the the MannKendall test for seasonality, we have
-determined that for the Nuese river there is no significant in
-seasonality for conductivity (p = 0.25276). However, we can conclude
-seasonality in flow data, discharge varies significantly depending on
-the season (p = 3.368e-07).
+After running a seasonal MannKendall test, we have determined that for
+the Nuese river there is no significant seasonality component for
+conductivity nor any of the salt ions. Looking at the time series
+decomposition, we can see that there is a discernable seasonality
+component, but it is very very small relative to the overall data.
+Similarly, there is no significant trend over the study period either
+(see p-values in table 2 below), indicating that over our examination
+period there is some degree of stationarity with regard to the salinity
+levels in the Neuse at Kinston. We can conclude that there is some
+seasonality in flow data, not a ton of difference depending on the
+season, but there is a significant trend of increasing flow year after
+year (p = 3.368e-07). This increasing trend in flow may be masking
+increases in salt content in the river, as increased flow will dilute an
+increased salt content to the same concentration, hiding an increase in
+salt deposition to the river.
+
+Table 2: P-values for Seasonal Mann-Kendall tests.
 
 \begin{longtable}[]{@{}ll@{}}
 \toprule
@@ -306,60 +308,33 @@ Discharge & 3.368e-07 \\
 \caption{Time Series Decomposition of Discharge in the Neuse River.}\label{fig:Plot of Discharge Time Series Decomposition}
 \end{figure}
 
-\begin{verbatim}
-## tau = -0.088, 2-sided pvalue =0.25276
-\end{verbatim}
+When plotted by the day of the year (DOY), we can see that there isn't
+much of a correlation between each specific conductivity or salt
+concentration over the year. Higher specific conductivity is correlated
+with higher concentrations of each salt, which is expected (more salt
+ions = higher salinity), but there is no discernible pattern related to
+the DOY. This corroborates our time series analysis that there is not a
+significant seasonal component the salinity of the Neuse at Kinston.
 
-\begin{verbatim}
-## Score =  -38 , Var(Score) = 1104
-## denominator =  432
-## tau = -0.088, 2-sided pvalue =0.25276
-\end{verbatim}
+\begin{figure}
 
-\begin{verbatim}
-## tau = -0.125, 2-sided pvalue =0.1038
-\end{verbatim}
+\includegraphics{EDA-final-project_files/figure-latex/Plot by DOY-1} \hfill{}
 
-\begin{verbatim}
-## Score =  -54 , Var(Score) = 1102
-## denominator =  430.993
-## tau = -0.125, 2-sided pvalue =0.1038
-\end{verbatim}
-
-\begin{verbatim}
-## tau = -0.0813, 2-sided pvalue =0.29151
-\end{verbatim}
-
-\begin{verbatim}
-## Score =  -35 , Var(Score) = 1101
-## denominator =  430.4894
-## tau = -0.0813, 2-sided pvalue =0.29151
-\end{verbatim}
-
-\begin{verbatim}
-## tau = -0.13, 2-sided pvalue =0.091911
-\end{verbatim}
-
-\begin{verbatim}
-## Score =  -56 , Var(Score) = 1104
-## denominator =  432
-## tau = -0.13, 2-sided pvalue =0.091911
-\end{verbatim}
-
-\begin{verbatim}
-## tau = 0.0711, 2-sided pvalue =3.368e-07
-\end{verbatim}
-
-\begin{verbatim}
-## Score =  936 , Var(Score) = 33662
-## denominator =  13158.43
-## tau = 0.0711, 2-sided pvalue =3.368e-07
-\end{verbatim}
+\caption{Salts by Specific Conductivity over the Year}\label{fig:Plot by DOY}
+\end{figure}
 
 \hypertarget{question-2-is-calcium-magnesium-or-sodium-the-driver-of-specific-conductance}{%
 \subsection{Question 2: Is calcium, magnesium, or sodium the driver of
 specific
 conductance?}\label{question-2-is-calcium-magnesium-or-sodium-the-driver-of-specific-conductance}}
+
+While there isn't much seasonality in the specific conductance found at
+this site in the Neuse, the salt ions measured there can still be
+examined to see if one or another appears to be driving the
+conductivity. It appears as though sodium is the ion most closely
+associated with the specific conductivity found at this site, as this
+ion both most closely aligns with the patterns seen in the data and also
+is the most abundant ion.
 
 \begin{figure}
 
@@ -379,23 +354,50 @@ conductance?}\label{question-2-is-calcium-magnesium-or-sodium-the-driver-of-spec
 
 \includegraphics{EDA-final-project_files/figure-latex/Visualise salts and conductivity-1} \hfill{}
 
-\caption{Specific Conductivity and salts in the Neuse River from 2013 through 2021}\label{fig:Visualise salts and conductivity}
+\caption{Specific Conductivity and Salts in the Neuse River from 2013 through 2021}\label{fig:Visualise salts and conductivity}
 \end{figure}
 
 \#\#Question 3: \textless What is the likely specific conductance in the
 future (forcasting trends)?\textgreater{}
+
+Are we still evaluating this?
 
 \newpage
 
 \hypertarget{summary-and-conclusions}{%
 \section{Summary and Conclusions}\label{summary-and-conclusions}}
 
-\newpage
+The Neuse River at Kinston does not show strong seasonality in salinity
+and appears to show stationarity in salinity levels over the study
+period. Specific conductance, the proxy used to examine salinity, showed
+marginal seasonal trends when examined with a time series decomposition
+and no discernible pattern when plotted by the day of the year.
+Discharge similarly shows some marginal seasonality, but also shows a
+slight increasing trend. This slight increasing trend is interesting
+because it could hide a similarly-scaled increase in salinity over the
+same time period, as increased discharge would dilute more salinity
+effectively.
 
-\hypertarget{references}{%
-\section{References}\label{references}}
+Sodium appears to have the strongest impact on specific conductance,
+indicating that it perhaps is the main driver of the salinity that does
+exist in the Neuse River. Sodium is the most abundant ion in the water,
+magnesium and calcium had a much lower concentration. Sodium also
+appears to have a nearly 1:1 correlation with specific conductivity, as
+seen in the DOY plot where they are plotted against each other.
 
-\textless add references here if relevant, otherwise delete this
-section\textgreater{}
+Overall, this is good news for the Neuse, indicating that at Kinston,
+which is relatively far down the watershed, upstream uses of salts do
+not cause seasonal changes in the river. The location of Kinston in the
+watershed has been brought up in this analysis multiple times because it
+is significant. This gage site is potentially far enough downstream from
+where road salt would be used to have the salinity be insignificant by
+the time the water reached Kinston. This gage was chosen in oart because
+it actually measures the salinity data we were interested in (and in
+part because we knew it was a pretty good dataset), but a future study
+would be interesting to compare the data at Kinston to similarly
+collected data at a gage site further upstream, like at Clayton, which
+is relatively close to the major metro area around Raleigh where road
+salt is also likely to be more prevalent than in smaller population
+areas.
 
 \end{document}
