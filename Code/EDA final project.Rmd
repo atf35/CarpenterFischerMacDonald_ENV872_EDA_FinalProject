@@ -205,7 +205,7 @@ ggplot(NeuseFlow_processed) +
 # Analysis
 
 ## Question 1: How does specific conductance vary seasonally?
-After running the the MannKendall test for seasonality, we have determined that for the Nuese river there is no significant in seasonality for conductivity (p = 0.25276). However, we can conclude seasonality in flow data, discharge varies significantly depending on the season (p = 3.368e-07).
+After running the the Seasonal MannKendall test, we have found no significant change in the Neuse River over time for conductivity (p = 0.25276). However, we were able to reject the Null for flow data, and determine there has been a significant increase in discharge over time (p = 3.368e-07).
 
 Measure           | P-value
 ------------------|------------------------
