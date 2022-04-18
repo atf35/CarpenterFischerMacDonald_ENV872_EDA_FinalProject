@@ -227,12 +227,11 @@ discharge_plot
 
 # Analysis
 
-<<<<<<< HEAD
+
 ## Question 1: How does specific conductance vary seasonally?
 After running the the Seasonal MannKendall test, we have found no significant change in the Neuse River over time for conductivity (p = 0.25276). However, we were able to reject the Null for flow data, and determine there has been a significant increase in discharge over time (p = 3.368e-07).
 =======
-## Question 1: How does specific conductance vary over time?
->>>>>>> a839bb1c42e04809884d612d445d82ba6e9e5349
+
 
 To determine whether specific conductance varies over time, we first constructed and decomposed the time series. The time series decomposition of specific conductivity shows a seasonal component in the Neuse River (Figure 4). After removing the seasonal component of the time series, a seasonal MannKendall test shows that the trend over time generally exhibits stationarity (p-value = 0.25276) (Table 2), meaning that specific conductivity is neither increasing or decreasing over time.
 
