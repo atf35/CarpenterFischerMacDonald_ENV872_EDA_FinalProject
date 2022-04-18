@@ -5,21 +5,10 @@
 \documentclass[
   12pt,
 ]{article}
-\title{Seasonal Salt Content in the Neuse River}
-\usepackage{etoolbox}
-\makeatletter
-\providecommand{\subtitle}[1]{% add subtitle to \maketitle
-  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
-}
-\makeatother
-\subtitle{\url{https://github.com/atf35/CarpenterFischerMacDonald_ENV872_EDA_FinalProject}}
-\author{Atalie Fischer, Kathlyn MacDonald, Jack Carpenter}
-\date{}
-
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{iftex}
-\ifPDFTeX
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
@@ -82,9 +71,20 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
-\ifLuaTeX
+\ifluatex
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
+
+\title{Seasonal Salt Content in the Neuse River}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{\url{https://github.com/atf35/CarpenterFischerMacDonald_ENV872_EDA_FinalProject}}
+\author{Atalie Fischer, Kathlyn MacDonald, Jack Carpenter}
+\date{}
 
 \begin{document}
 \maketitle
@@ -100,7 +100,10 @@
 
 \listoftables
 
-Table 1: Summary of the data used. \newpage
+Table 1: Summary of the data
+used\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots..6
+Table 2: P-values for Seasonal Mann-Kendall
+tests\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots11 \newpage
 
 \listoffigures 
 \newpage
@@ -114,22 +117,23 @@ just to human life, but also to the survival of countless other species
 and their interconnected ecosystems. Conductivity, or the ability of
 water to pass an electrical current via dissolved salts and other
 minerals, is a strong indicator of salinity, a key component of water
-quality. Changes in conductivity over time suggest a potential salt and
-mineral pollutants entering the system.
+quality. Changes in conductivity over time suggest potential salt and
+mineral pollutants entering the system, and also potential salinization
+over time.
 
-For this study, we will analyze how specific conductance can vary
-depending on the season. In particular, we will address the impact of
-winterizing the roadways with salt on water quality. Our main research
-question is: Is salting the roads a main driver in changes to water
-conductivity, or are other minerals a significant factor? Here, we chose
-to analyze water quality and flow data from the Neuse River in Kinston,
-North Carolina from 1976 to 2022. We chose this river due to familiarity
-with the data and its proximity to an urban center (Kinston pop =
-20,398). We also know from living in the headwaters of this river that
-salt is applied to roadways in the upper watershed in the winter (albeit
-infrequently). Since the gage at Kinston is further downstream, we will
-examine whether there are significant downstream effects of road salting
-on water quality in the Neuse River basin. ADD MORE?
+For this study, we will analyze how specific conductance varies over
+time. In particular, we will address the impact of winterizing the
+roadways with salt on water quality. Our main research question is: Is
+salting the roads a main driver in changes to water conductivity, or are
+other minerals a significant factor? Here, we chose to analyze water
+quality and flow data from the Neuse River in Kinston, North Carolina
+from 1976 to 2022. We chose this river due to familiarity with the data
+and its proximity to an urban center (Kinston pop = 20,398). We also
+know from living in the headwaters of this river that salt is applied to
+roadways in the upper watershed in the winter (albeit infrequently).
+Since the gage at Kinston is further downstream, we will examine whether
+there are significant downstream effects of road salting on water
+quality in the Neuse River basin. ADD MORE?
 
 We used the following research questions to guide our work:
 
@@ -152,7 +156,7 @@ We used the following research questions to guide our work:
 \hypertarget{dataset-information}{%
 \section{Dataset Information}\label{dataset-information}}
 
-\emph{Neuse River water quality and discharge data at Kinston, North
+\textbf{Neuse River water quality and discharge data at Kinston, North
 Carolina.} The gage information comes from the United States Geologic
 Survey (USGS) National Water Information Systems (NWIS) database. USGS
 gage stations typically collect discharge and a subset collect water
@@ -179,11 +183,7 @@ Table 1: Summary of the data used.
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.43}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.57}}@{}}
 \toprule
-\begin{minipage}[b]{\linewidth}\raggedright
-Dataset
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Info
-\end{minipage} \\
+Dataset & Info \\
 \midrule
 \endhead
 NeuseWQ & Water quality data collected at USGS gage 02089500 \\
@@ -211,11 +211,12 @@ month to ensure that there are evenly spaced time steps across the
 years, a necessary condition for time series analyses.
 
 We plotted the specific conductance over time to visualize any gaps in
-our dataset. We see that the WQ dataset contains many long periods of
-missing data for specific conductance. Since these missing periods
-frequently span across many years, we chose to look at WQ data from 2013
-through 2021. There are no missing data points from this period of time,
-and will therefore not require any interpolation of this dataset.
+our dataset (Figure 1). We see that the WQ dataset contains many long
+periods of missing data for specific conductance. Since these missing
+periods frequently span across many years, we chose to look at WQ data
+from 2013 through 2021 (Figure 2). There are no missing data points from
+this period of time, and will therefore not require any interpolation of
+this dataset.
 
 \begin{figure}
 
@@ -237,7 +238,7 @@ We are also interested in the flow of the Neuse River because this
 factor may affect salinity. For example, higher discharges may dilute
 any salinity and drier periods may reflect higher salt content. We
 started by wrangling the flow dataset to include the parameters of
-interest, sampling date and discharge.
+interest, sampling date and discharge (Figure 3).
 
 \begin{figure}
 
@@ -251,12 +252,18 @@ interest, sampling date and discharge.
 \hypertarget{analysis}{%
 \section{Analysis}\label{analysis}}
 
-\hypertarget{question-1-how-does-specific-conductance-vary-seasonally}{%
-\subsection{Question 1: How does specific conductance vary
-seasonally?}\label{question-1-how-does-specific-conductance-vary-seasonally}}
+\hypertarget{question-1-how-does-specific-conductance-vary-over-time}{%
+\subsection{Question 1: How does specific conductance vary over
+time?}\label{question-1-how-does-specific-conductance-vary-over-time}}
 
-To determine whether specific conductance varies seasonally, we first
-decomposed a time series analysis.
+To determine whether specific conductance varies over time, we first
+constructed and decomposed the time series. The time series
+decomposition of specific conductivity shows a seasonal component in the
+Neuse River (Figure 4). After removing the seasonal component of the
+time series, a seasonal MannKendall test shows that the trend over time
+generally exhibits stationarity (p-value = 0.25276) (Table 2), meaning
+that specific conductivity is neither increasing or decreasing over
+time.
 
 \begin{figure}
 
@@ -265,28 +272,21 @@ decomposed a time series analysis.
 \caption{Time Series Decomposition of Conductivity in the Neuse River.}\label{fig:Plot of Conductivity Time Series Decomp}
 \end{figure}
 
-The time series decomposition of specific conductivity shows a seasonal
-component in the Neuse River (Figure 4). After removing the seasonal
-component of the time series, a seasonal MannKendall test shows that the
-trend over time generally exhibits stationarity (p-value = 0.25276)
-(Table 2), meaning that specific conductivity is neither increasing or
-decreasing over time.
+Unsurprisingly, the time series decomposition and seasonal MannKendall
+tests of calcium (Ca), magnesium (Mg), and sodium (Na) show that the
+these minerals generally exhibit stationarity over time (Figures 5-7)
+(p-values in Table 2), meaning that mineral content is also neither
+increasing or decreasing over time.
 
-After running a seasonal MannKendall test, we have determined that for
-the Nuese river there is no significant seasonality component for
-conductivity nor any of the salt ions. Looking at the time series
-decomposition, we can see that there is a discernable seasonality
-component, but it is very very small relative to the overall data.
-Similarly, there is no significant trend over the study period either
-(see p-values in table 2 below), indicating that over our examination
-period there is some degree of stationarity with regard to the salinity
-levels in the Neuse at Kinston. We can conclude that there is some
-seasonality in flow data, not a ton of difference depending on the
-season, but there is a significant trend of increasing flow year after
-year (p = 3.368e-07). This increasing trend in flow may be masking
-increases in salt content in the river, as increased flow will dilute an
-increased salt content to the same concentration, hiding an increase in
-salt deposition to the river.
+We also constructed and decomposed the time series for our flow dataset.
+The decomposition shows that discharge in the Neuse River basin has
+seasonality (Figure 8). The seasonal MannKendall test shows that
+discharge exhibits a non-monotonic trend over time, with flow
+significantly increasing year after year (p-value = 3.368e-07, Table 2).
+This increasing trend in flow may be masking increases in salt content
+in the river, as increased flow will dilute an increased salt content to
+the same concentration, hiding an increase in salt deposition to the
+river.
 
 Table 2: P-values for Seasonal Mann-Kendall tests.
 
@@ -330,6 +330,8 @@ Discharge & 3.368e-07 \\
 
 \caption{Time Series Decomposition of Discharge in the Neuse River.}\label{fig:Plot of Discharge Time Series Decomposition}
 \end{figure}
+
+\newpage
 
 When plotted by the day of the year (DOY), we can see that there isn't
 much of a correlation between each specific conductivity or salt
