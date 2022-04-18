@@ -414,7 +414,7 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
           align = "hv")
 ```
 
-```{r Visualise salts and conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Specific Conductivity and Salts in the Neuse River from 2013 through 2021"}
+```{r Visualise salts and conductivity, include=TRUE, echo=FALSE, fig.align='left', fig.cap="Specific Conductivity and Salts in the Neuse River from 2013 through 2021"}
 #plot spec cond and the salts on the same plot to look for patterns
 SpC.v.salts_plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
