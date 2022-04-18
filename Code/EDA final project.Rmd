@@ -16,7 +16,6 @@ mainfont: Times New Roman
 
 \newpage
 
-
 \tableofcontents 
 \newpage
 
@@ -235,24 +234,13 @@ NeuseCond_ts <- ts(NeuseWQ_short[[5]], frequency = 12)
 NeuseCond_decomp <- stl(NeuseCond_ts, s.window = "periodic")
 ```
 
-```{r Plot of Conductivity Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Conductivity in the Neuse River."}
+```{r Plot of Conductivity Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Conductivity in the Neuse River."}
 plot(NeuseCond_decomp, main = "Specific Conductivity")
 ```
 
+\newpage
+
 Unsurprisingly, the time series decomposition and seasonal MannKendall tests of calcium (Ca), magnesium (Mg), and sodium (Na) show that the these minerals generally exhibit stationarity over time (Figures 5-7) (p-values in Table 2), meaning that mineral content is also neither increasing or decreasing over time. 
-
-We also constructed and decomposed the time series for our flow dataset. The decomposition shows that discharge in the Neuse River basin has seasonality (Figure 8). The seasonal MannKendall test shows that discharge exhibits a non-monotonic trend over time, with flow significantly increasing year after year (p-value = 3.368e-07, Table 2). This increasing trend in flow may be masking increases in salt content in the river, as increased flow will dilute an increased salt content to the same concentration, hiding an increase in salt deposition to the river.
-
-
-Table 2: P-values for Seasonal Mann-Kendall tests.
-
-Measure           | P-value
-------------------|------------------------
-Conductivity      | 0.25276
-Calcium           | 0.1038
-Magnesium         | 0.29151
-Sodium            | 0.091911
-Discharge         | 3.368e-07
 
 ```{r Salt time series and decomps, include=FALSE}
 #Decomposing by Mineral
@@ -269,17 +257,21 @@ NeuseCond_sodium_ts <- ts(NeuseWQ_short$AvgNa_mg.L, frequency = 12)
 NeuseCond_sodium_decomp <- stl(NeuseCond_sodium_ts, s.window = "periodic")
 ```
 
-```{r Plot of Calcium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Calcium in the Neuse River."}
+```{r Plot of Calcium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Calcium in the Neuse River."}
 plot(NeuseCond_Calcium_decomp, main = "Calcium")
 ```
 
-```{r Plot of Magnesium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Magnesium in the Neuse River."}
+```{r Plot of Magnesium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Magnesium in the Neuse River."}
 plot(NeuseCond_magneisum_decomp, main = "Magnesium")
 ```
 
-```{r Plot of Sodium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Sodium in the Neuse River."}
+```{r Plot of Sodium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Sodium in the Neuse River."}
 plot(NeuseCond_sodium_decomp, main = "Sodium")
 ```
+
+\newpage
+
+We also constructed and decomposed the time series for our flow dataset. The decomposition shows that discharge in the Neuse River basin has seasonality (Figure 8). The seasonal MannKendall test shows that discharge exhibits a non-monotonic trend over time, with flow significantly increasing year after year (p-value = 3.368e-07, Table 2). This increasing trend in flow may be masking increases in salt content in the river, as increased flow will dilute an increased salt content to the same concentration, hiding an increase in salt deposition to the river.
 
 ```{r Discharge time series and decomp, include=FALSE}
 #Creating Time Series for flow data
@@ -287,11 +279,23 @@ NeuseFlow_ts <- ts(NeuseFlow_processed[[2]], frequency =365)
 NeuseFlow_decomp <- stl(NeuseFlow_ts, s.window = "periodic")
 ```
 
-```{r Plot of Discharge Time Series Decomposition, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Time Series Decomposition of Discharge in the Neuse River."}
-plot(NeuseFlow_decomp)
+```{r Plot of Discharge Time Series Decomposition, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Discharge in the Neuse River."}
+plot(NeuseFlow_decomp, main = "Discharge")
 ```
 
-```{r Testing for Seasonality, include=FALSE, echo=FALSE, message=FALSE}
+---
+
+Table 2: P-values for Seasonal Mann-Kendall tests.
+
+Measure           | P-value
+------------------|------------------------
+Conductivity      | 0.25276
+Calcium           | 0.1038
+Magnesium         | 0.29151
+Sodium            | 0.091911
+Discharge         | 3.368e-07
+
+```{r Testing for Stationarity, include=FALSE, echo=FALSE, message=FALSE}
 #Conductivity
 Neuse_seasonality_trends_Conductivity <- Kendall::SeasonalMannKendall(NeuseCond_ts)
 Neuse_seasonality_trends_Conductivity
@@ -319,11 +323,14 @@ Neuse_seasonality_trends_Flow
 summary(Neuse_seasonality_trends_Flow)
 ```
 
+---
 
 \newpage
 
+We plotted each mineral by the day of the year (DOY) to visualize any seasonal patterns within a year. We can see that there is no correlation between each specific conductivity or salt concentration over the year. 
 
-When plotted by the day of the year (DOY), we can see that there isn't much of a correlation between each specific conductivity or salt concentration over the year. Higher specific conductivity is correlated with higher concentrations of each salt, which is expected (more salt ions = higher salinity), but there is no discernible pattern related to the DOY. This corroborates our time series analysis that there is not a significant seasonal component the salinity of the Neuse at Kinston. 
+Higher specific conductivity is correlated with higher concentrations of each salt, as is expected since more salt ions leads to higher salinity. However, there is no discernible pattern related to the DOY. This corroborates our time series analysis that there is not a significant seasonal component the salinity of the Neuse at Kinston. 
+
 ```{r Create DOY column, include=FALSE, echo=FALSE, message=FALSE}
 NeuseWQ_DOY <- NeuseWQ_processed %>%
   filter(Year >= 2013 & Year <= 2022) %>%
@@ -355,7 +362,9 @@ NaDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = Na_mg.L)) +
 NaDOY_plot
 ```
 
+
 \newpage
+
 
 ## Question 2: Is calcium, magnesium, or sodium the driver of specific conductance?
 While there isn't much seasonality in the specific conductance found at this site in the Neuse, the salt ions measured there can still be examined to see if one or another appears to be driving the conductivity. It appears as though sodium is the ion most closely associated with the specific conductivity found at this site, as this ion both most closely aligns with the patterns seen in the data and also is the most abundant ion.
