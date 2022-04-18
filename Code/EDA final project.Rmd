@@ -16,8 +16,7 @@ mainfont: Times New Roman
 
 \newpage
 
-\tableofcontents 
-\newpage
+
 
 \listoftables 
 Table 1: Summary of the data used............................................6
