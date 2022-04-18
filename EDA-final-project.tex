@@ -102,6 +102,7 @@
 
 Table 1: Summary of the data
 used\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots..6
+
 Table 2: P-values for Seasonal Mann-Kendall
 tests\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots11 \newpage
 
@@ -267,16 +268,49 @@ time.
 
 \begin{figure}
 
-\includegraphics{EDA-final-project_files/figure-latex/Plot of Conductivity Time Series Decomp-1} \hfill{}
+{\centering \includegraphics{EDA-final-project_files/figure-latex/Plot of Conductivity Time Series Decomp-1} 
+
+}
 
 \caption{Time Series Decomposition of Conductivity in the Neuse River.}\label{fig:Plot of Conductivity Time Series Decomp}
 \end{figure}
+
+\newpage
 
 Unsurprisingly, the time series decomposition and seasonal MannKendall
 tests of calcium (Ca), magnesium (Mg), and sodium (Na) show that the
 these minerals generally exhibit stationarity over time (Figures 5-7)
 (p-values in Table 2), meaning that mineral content is also neither
 increasing or decreasing over time.
+
+\begin{figure}
+
+{\centering \includegraphics{EDA-final-project_files/figure-latex/Plot of Calcium Time Series Decomp-1} 
+
+}
+
+\caption{Time Series Decomposition of Calcium in the Neuse River.}\label{fig:Plot of Calcium Time Series Decomp}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{EDA-final-project_files/figure-latex/Plot of Magnesium Time Series Decomp-1} 
+
+}
+
+\caption{Time Series Decomposition of Magnesium in the Neuse River.}\label{fig:Plot of Magnesium Time Series Decomp}
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics{EDA-final-project_files/figure-latex/Plot of Sodium Time Series Decomp-1} 
+
+}
+
+\caption{Time Series Decomposition of Sodium in the Neuse River.}\label{fig:Plot of Sodium Time Series Decomp}
+\end{figure}
+
+\newpage
 
 We also constructed and decomposed the time series for our flow dataset.
 The decomposition shows that discharge in the Neuse River basin has
@@ -287,6 +321,17 @@ This increasing trend in flow may be masking increases in salt content
 in the river, as increased flow will dilute an increased salt content to
 the same concentration, hiding an increase in salt deposition to the
 river.
+
+\begin{figure}
+
+{\centering \includegraphics{EDA-final-project_files/figure-latex/Plot of Discharge Time Series Decomposition-1} 
+
+}
+
+\caption{Time Series Decomposition of Discharge in the Neuse River.}\label{fig:Plot of Discharge Time Series Decomposition}
+\end{figure}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 Table 2: P-values for Seasonal Mann-Kendall tests.
 
@@ -303,43 +348,17 @@ Discharge & 3.368e-07 \\
 \bottomrule
 \end{longtable}
 
-\begin{figure}
-
-\includegraphics{EDA-final-project_files/figure-latex/Plot of Calcium Time Series Decomp-1} \hfill{}
-
-\caption{Time Series Decomposition of Calcium in the Neuse River.}\label{fig:Plot of Calcium Time Series Decomp}
-\end{figure}
-
-\begin{figure}
-
-\includegraphics{EDA-final-project_files/figure-latex/Plot of Magnesium Time Series Decomp-1} \hfill{}
-
-\caption{Time Series Decomposition of Magnesium in the Neuse River.}\label{fig:Plot of Magnesium Time Series Decomp}
-\end{figure}
-
-\begin{figure}
-
-\includegraphics{EDA-final-project_files/figure-latex/Plot of Sodium Time Series Decomp-1} \hfill{}
-
-\caption{Time Series Decomposition of Sodium in the Neuse River.}\label{fig:Plot of Sodium Time Series Decomp}
-\end{figure}
-
-\begin{figure}
-
-\includegraphics{EDA-final-project_files/figure-latex/Plot of Discharge Time Series Decomposition-1} \hfill{}
-
-\caption{Time Series Decomposition of Discharge in the Neuse River.}\label{fig:Plot of Discharge Time Series Decomposition}
-\end{figure}
-
 \newpage
 
-When plotted by the day of the year (DOY), we can see that there isn't
-much of a correlation between each specific conductivity or salt
-concentration over the year. Higher specific conductivity is correlated
-with higher concentrations of each salt, which is expected (more salt
-ions = higher salinity), but there is no discernible pattern related to
-the DOY. This corroborates our time series analysis that there is not a
-significant seasonal component the salinity of the Neuse at Kinston.
+We plotted each mineral by the day of the year (DOY) to visualize any
+seasonal patterns within a year. We can see that there is no correlation
+between each specific conductivity or salt concentration over the year.
+
+Higher specific conductivity is correlated with higher concentrations of
+each salt, which is expected (more salt ions = higher salinity), but
+there is no discernible pattern related to the DOY. This corroborates
+our time series analysis that there is not a significant seasonal
+component the salinity of the Neuse at Kinston.
 
 \begin{figure}
 
