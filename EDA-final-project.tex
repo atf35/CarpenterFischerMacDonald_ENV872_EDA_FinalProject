@@ -5,10 +5,21 @@
 \documentclass[
   12pt,
 ]{article}
+\title{Seasonal Salt Content in the Neuse River}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{\url{https://github.com/atf35/CarpenterFischerMacDonald_ENV872_EDA_FinalProject}}
+\author{Atalie Fischer, Kathlyn MacDonald, Jack Carpenter}
+\date{}
+
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{ifxetex,ifluatex}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage{iftex}
+\ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
@@ -71,20 +82,9 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
-\ifluatex
+\ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-
-\title{Seasonal Salt Content in the Neuse River}
-\usepackage{etoolbox}
-\makeatletter
-\providecommand{\subtitle}[1]{% add subtitle to \maketitle
-  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
-}
-\makeatother
-\subtitle{\url{https://github.com/atf35/CarpenterFischerMacDonald_ENV872_EDA_FinalProject}}
-\author{Atalie Fischer, Kathlyn MacDonald, Jack Carpenter}
-\date{}
 
 \begin{document}
 \maketitle
@@ -122,19 +122,30 @@ quality. Changes in conductivity over time suggest potential salt and
 mineral pollutants entering the system, and also potential salinization
 over time.
 
-For this study, we will analyze how specific conductance varies over
-time. In particular, we will address the impact of winterizing the
-roadways with salt on water quality. Our main research question is: Is
-salting the roads a main driver in changes to water conductivity, or are
-other minerals a significant factor? Here, we chose to analyze water
-quality and flow data from the Neuse River in Kinston, North Carolina
-from 1976 to 2022. We chose this river due to familiarity with the data
-and its proximity to an urban center (Kinston pop = 20,398). We also
-know from living in the headwaters of this river that salt is applied to
-roadways in the upper watershed in the winter (albeit infrequently).
-Since the gage at Kinston is further downstream, we will examine whether
-there are significant downstream effects of road salting on water
-quality in the Neuse River basin. ADD MORE?
+\textless\textless\textless\textless\textless\textless\textless{} HEAD
+For this study, we chose to analyze how specific conductance can vary
+depending on the season. In particular, we wanted to address the impact
+of winterizing the roadways with salt on water quality. Our main
+research question was: is salting the roads a main driver in changes to
+water conductivity, or are other minerals a significant factor? Here, we
+chose to analyze the Neuse River in Kinston, North Carolina over a 46
+year period (1976-2022). We chose this river due to familiarity with the
+data and its proximity to an urban center (Kinston pop = 20,398). ADD
+MORE! ======= For this study, we will analyze how specific conductance
+varies over time. In particular, we will address the impact of
+winterizing the roadways with salt on water quality. Our main research
+question is: Is salting the roads a main driver in changes to water
+conductivity, or are other minerals a significant factor? Here, we chose
+to analyze water quality and flow data from the Neuse River in Kinston,
+North Carolina from 1976 to 2022. We chose this river due to familiarity
+with the data and its proximity to an urban center (Kinston pop =
+20,398). We also know from living in the headwaters of this river that
+salt is applied to roadways in the upper watershed in the winter (albeit
+infrequently). Since the gage at Kinston is further downstream, we will
+examine whether there are significant downstream effects of road salting
+on water quality in the Neuse River basin. ADD MORE?
+\textgreater\textgreater\textgreater\textgreater\textgreater\textgreater\textgreater{}
+a839bb1c42e04809884d612d445d82ba6e9e5349
 
 We used the following research questions to guide our work:
 
@@ -184,7 +195,11 @@ Table 1: Summary of the data used.
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.43}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.57}}@{}}
 \toprule
-Dataset & Info \\
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Info
+\end{minipage} \\
 \midrule
 \endhead
 NeuseWQ & Water quality data collected at USGS gage 02089500 \\
@@ -253,9 +268,16 @@ interest, sampling date and discharge (Figure 3).
 \hypertarget{analysis}{%
 \section{Analysis}\label{analysis}}
 
-\hypertarget{question-1-how-does-specific-conductance-vary-over-time}{%
-\subsection{Question 1: How does specific conductance vary over
-time?}\label{question-1-how-does-specific-conductance-vary-over-time}}
+\textless\textless\textless\textless\textless\textless\textless{} HEAD
+\#\# Question 1: How does specific conductance vary seasonally? After
+running the the Seasonal MannKendall test, we have found no significant
+change in the Neuse River over time for conductivity (p = 0.25276).
+However, we were able to reject the Null for flow data, and determine
+there has been a significant increase in discharge over time (p =
+3.368e-07). ======= \#\# Question 1: How does specific conductance vary
+over time?
+\textgreater\textgreater\textgreater\textgreater\textgreater\textgreater\textgreater{}
+a839bb1c42e04809884d612d445d82ba6e9e5349
 
 To determine whether specific conductance varies over time, we first
 constructed and decomposed the time series. The time series
@@ -348,6 +370,8 @@ Discharge & 3.368e-07 \\
 \bottomrule
 \end{longtable}
 
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
 \newpage
 
 We plotted each mineral by the day of the year (DOY) to visualize any
@@ -355,10 +379,10 @@ seasonal patterns within a year. We can see that there is no correlation
 between each specific conductivity or salt concentration over the year.
 
 Higher specific conductivity is correlated with higher concentrations of
-each salt, which is expected (more salt ions = higher salinity), but
-there is no discernible pattern related to the DOY. This corroborates
-our time series analysis that there is not a significant seasonal
-component the salinity of the Neuse at Kinston.
+each salt, as is expected since more salt ions leads to higher salinity.
+However, there is no discernible pattern related to the DOY. This
+corroborates our time series analysis that there is not a significant
+seasonal component the salinity of the Neuse at Kinston.
 
 \begin{figure}
 
@@ -396,8 +420,10 @@ is the most abundant ion.
 \caption{Specific Conductivity and Salts in the Neuse River from 2013 through 2021}\label{fig:Visualise salts and conductivity}
 \end{figure}
 
-\#\#Question 3: What is the likely specific conductance in the future
-(forcasting trends)?
+\hypertarget{question-3-what-is-the-likely-specific-conductance-in-the-future-forcasting-trends}{%
+\subsection{Question 3: What is the likely specific conductance in the
+future (forcasting
+trends)?}\label{question-3-what-is-the-likely-specific-conductance-in-the-future-forcasting-trends}}
 
 Are we still evaluating this?
 
