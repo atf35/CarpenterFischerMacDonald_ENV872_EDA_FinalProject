@@ -173,9 +173,10 @@ ggplot(NeuseWQ_monthly) +
 NeuseWQ_short <- NeuseWQ_monthly %>% 
   filter(Date_monthrounded >= "2013-01-01" & Date_monthrounded < "2022-01-01")
 
-ggplot(NeuseWQ_short) +
+SpCplot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
   labs(x = "Date", y = expression("Specific Conductance ("*mu*"S/cm)"))
+SpCplot
 ```
 
 ```{r Water Quality Dataset Summary, include=FALSE, echo=FALSE}
@@ -210,10 +211,11 @@ summary(NeuseFlow_processed) #no NAs in the dataset
 ```
 
 ```{r Discharge over time, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Discharge in the Neuse River from 2013 through 2021."}
-ggplot(NeuseFlow_processed) +
+discharge_plot <- ggplot(NeuseFlow_processed) +
   geom_line(aes(x = ActivityStartDate, y = discharge_cfs)) +
   labs(x = "Date", y = "Discharge (cfs)") +
   scale_y_log10()
+discharge_plot
 ```
 
 \newpage
@@ -349,14 +351,17 @@ NaDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = Na_mg.L)) +
 NaDOY_plot
 ```
 
+\newpage
+
 ## Question 2: Is calcium, magnesium, or sodium the driver of specific conductance?
 While there isn't much seasonality in the specific conductance found at this site in the Neuse, the salt ions measured there can still be examined to see if one or another appears to be driving the conductivity. It appears as though sodium is the ion most closely associated with the specific conductivity found at this site, as this ion both most closely aligns with the patterns seen in the data and also is the most abundant ion.
 
 ```{r Visualize 2013-2021 Conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Conductivity in the Neuse River from 2013 through 2021."}
 #plot specific conductivity over same shorter time period
-ggplot(NeuseWQ_short) +
+SpCshort_plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
   labs(x = "Date", y = expression("Specific Conductivity"))
+SpCshort_plot
 ```
 
 ```{r Visualize 2013-2021 WQ data, include=FALSE}
@@ -364,6 +369,7 @@ ggplot(NeuseWQ_short) +
 Ca.plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
   labs(x = "", y = expression("Calcium (mg/L)"))
+Ca.plot
 
 #plot Mg over same shorter time period
 Mg.plot <- ggplot(NeuseWQ_short) +
@@ -379,7 +385,7 @@ Na.plot
 
 ```
 
-```{r Visualise all three components together, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Calcium, Magnesium, and Sodium in the Neuse River from 2013 through 2021"}
+```{r Visualise all three components together, include=FALSE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Calcium, Magnesium, and Sodium in the Neuse River from 2013 through 2021"}
 #now lets look at all three salt ions over the same time period
 plot_grid(Ca.plot, Mg.plot, Na.plot,
           ncol = 1,
@@ -388,13 +394,14 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
 
 ```{r Visualise salts and conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Specific Conductivity and Salts in the Neuse River from 2013 through 2021"}
 #plot spec cond and the salts on the same plot to look for patterns
-ggplot(NeuseWQ_short) +
+SpC.v.salts_plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
   geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L), color="red") +
   geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L), color="blue") +
   geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L), color="yellow3") +
   scale_y_log10()+
   labs(x = "Date", y = "Concentration", color = "Variable")
+SpC.v.salts_plot
 ```
 
 ```{r Correlation b/t Salts and Specific Conductivity, echo=FALSE}
@@ -414,7 +421,7 @@ summary(Mg_lm)
 
 ```
 
-##Question 3: <What is the likely specific conductance in the future (forcasting trends)?>
+##Question 3: What is the likely specific conductance in the future (forcasting trends)?
 
 Are we still evaluating this? 
 
