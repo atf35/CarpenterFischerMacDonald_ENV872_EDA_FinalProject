@@ -350,7 +350,7 @@ saltsvspc_plot <- ggplot(NeuseWQ_DOY)+
   geom_point(shape = 2, alpha = 0.75, size = 1, aes(x = SpC_uS.cm, y = Ca_mg.L, color = DOY)) +
   geom_point(shape = 3, alpha = 0.75, size = 1, aes(x = SpC_uS.cm, y = Na_mg.L, color = DOY)) +
   scale_color_viridis_c()+
-  labs(x = "Spec. Cond.", y = "mg/L", color = "DOY", shape = "y")
+  labs(x = "Spec. Cond.", y = "mg/L", color = "DOY", caption = "Sodium is depicted as the plus, calcium is depicted as the triangle, magnesium is depicted as the circle")
 saltsvspc_plot
 ```
 
