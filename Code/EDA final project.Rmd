@@ -443,7 +443,7 @@ summary(Mg_lm)
 
 ```
 
-##Question 3: What is the likely specific conductance in the future (forcasting trends)?
+## Question 3: What is the likely specific conductance in the future (forcasting trends)?
 
 Are we still evaluating this? 
 
