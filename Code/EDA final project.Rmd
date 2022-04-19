@@ -19,7 +19,7 @@ mainfont: Times New Roman
 
 
 \listoftables 
-Table 1: Summary of the data used............................................6
+Table 1: Summary of the data used..........................................6
 
 Table 2: P-values for Seasonal Mann-Kendall tests...........................11
 \newpage
@@ -50,6 +50,8 @@ library(nhdplusTools)
 library(cowplot)
 #library(fable)
 library(tseries)
+#install.packages("reshape2")
+library(reshape2)
 
 # Set ggplot theme
 mytheme <- theme_classic(base_size = 10) +
@@ -79,15 +81,11 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
 # Rationale and Research Questions
 The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of salinity, a key component of water quality. Changes in conductivity over time suggest potential salt and mineral pollutants entering the system, and also potential salinization over time. 
 
-<<<<<<< HEAD
-For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398).
-=======
-For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). We also know from living in the headwaters of this river that salt is applied to roadways in the upper watershed in the winter (albeit infrequently). Since the gage at Kinston is further downstream,  we will examine whether there are significant downstream effects of road salting on water quality in the Neuse River basin. ADD MORE?
->>>>>>> a839bb1c42e04809884d612d445d82ba6e9e5349
+For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: *Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor?* Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398).
 
 We used the following research questions to guide our work: 
 
-> 1. How does specific conductance vary seasonally? 
+> 1. How does specific conductance vary over time and seasonally? 
 > 2. Is calcium, magnesium, or sodium the driver of specific conductance?
 > 3. What is the likely specific conductance in the future (forcasting trends)?
 
@@ -115,16 +113,6 @@ Date Range        | 1976 through 2022, wrangled to 2013 through 2022
 \newpage
 
 # Exploratory Analysis
-
-```{r Map of Neuse Watershed, eval=FALSE, include=FALSE}
-
-####need to fix this...
-# what do we need to fix?
-# i dont want all the lakes in there, just the river. and want a better basemap to show where in NC it is
-
-plot_nhdplus("USGS-02089500", streamorder = 3) 
-```
-
 
 The first step we took in our initial exploratory analysis was to wrangle the water quality (WQ) dataset to include only the columns of interest. This included the sampling dates and concentrations for specific conductance, calcium (Ca), sodium (Na), and magnesium (Mg), which were each given separate columns. This dataset contains monthly observations, however, not necessarily sampled on the first of each month. We wrangled the WQ dataset to round the dates to the first of the month to ensure that there are evenly spaced time steps across the years, a necessary condition for time series analyses. 
 
@@ -159,6 +147,9 @@ NeuseWQ_monthly <- NeuseWQ_monthly %>%
             AvgMg_mg.L = mean(Mg_mg.L),
             AvgNa_mg.L = mean(Na_mg.L),
             AvgSpC_uS.cm = mean(SpC_uS.cm))
+
+#pivot longer
+NeuseWQ_processed_pivotLonger <- pivot_longer(NeuseWQ_processed, Mg_mg.L:Na_mg.L, names_to = "Mineral", values_to = "ResultMeasureValue")
 
 
 # write csv file for WQ data
@@ -228,12 +219,12 @@ discharge_plot
 # Analysis
 
 
-## Question 1: How does specific conductance vary seasonally?
-After running the the Seasonal MannKendall test, we have found no significant change in the Neuse River over time for conductivity (p = 0.25276). However, we were able to reject the Null for flow data, and determine there has been a significant increase in discharge over time (p = 3.368e-07).
-=======
+## Question 1: How does specific conductance vary over time and seasonally?
 
 
-To determine whether specific conductance varies over time, we first constructed and decomposed the time series. The time series decomposition of specific conductivity shows a seasonal component in the Neuse River (Figure 4). After removing the seasonal component of the time series, a seasonal MannKendall test shows that the trend over time generally exhibits stationarity (p-value = 0.25276) (Table 2), meaning that specific conductivity is neither increasing or decreasing over time.
+### Is the specific conductivity of the Neuse River monotonically changing over time?
+
+To determine whether specific conductance varies over time, we first constructed and decomposed the time series data. The time series decomposition of specific conductivity shows a seasonal component in the Neuse River (Figure 4). To test whether the Neuse River exhibits a monotonic trend in specific conductance, we conducted a seasonal MannKendall test. With a p-value > 0.05, we accept the null hypothesis that there the specific conductance of the Neuse River exhibits no monotonic trend (Table 2), meaning that specific conductivity is neither increasing or decreasing over time (Figure 5).
 
 ```{r Conductivity time series and decomp, include=FALSE}
 #Creating Time Series for conductivity
@@ -245,9 +236,18 @@ NeuseCond_decomp <- stl(NeuseCond_ts, s.window = "periodic")
 plot(NeuseCond_decomp, main = "Specific Conductivity")
 ```
 
+```{r Plot of Conductivity over Time with Trend, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Specific Conductance in the Neuse River does not exhibit a monotonic trend over time."}
+ggplot(NeuseWQ_short, aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
+  geom_point() +
+  geom_line() +
+  xlab("Date") +
+  ylab(expression("Average Specific Conductance ("*mu*"S/cm)")) +
+  geom_smooth(method = lm)
+```
+
 \newpage
 
-Unsurprisingly, the time series decomposition and seasonal MannKendall tests of calcium (Ca), magnesium (Mg), and sodium (Na) show that the these minerals generally exhibit stationarity over time (Figures 5-7) (p-values in Table 2), meaning that mineral content is also neither increasing or decreasing over time. 
+Unsurprisingly, the time series decomposition and seasonal MannKendall tests of calcium (Ca) (Figures 6-7), magnesium (Mg) (Figures 8-9), and sodium (Na) (Figures 10-11) show that the these minerals also do not  exhibit monotonic trends over time (p-values in Table 2), meaning that mineral content is also neither increasing or decreasing over time. 
 
 ```{r Salt time series and decomps, include=FALSE}
 #Decomposing by Mineral
@@ -268,17 +268,44 @@ NeuseCond_sodium_decomp <- stl(NeuseCond_sodium_ts, s.window = "periodic")
 plot(NeuseCond_Calcium_decomp, main = "Calcium")
 ```
 
+```{r Plot of Calcium over Time with Trend, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Calcium in the Neuse River does not exhibit a monotonic trend over time."}
+ggplot(NeuseWQ_short, aes(x = Date_monthrounded, y = AvgCa_mg.L)) +
+  geom_point() +
+  geom_line() +
+  xlab("Date") +
+  ylab("Average Calcium (mg/L)") +
+  geom_smooth(method = lm)
+```
+
 ```{r Plot of Magnesium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Magnesium in the Neuse River."}
 plot(NeuseCond_magneisum_decomp, main = "Magnesium")
+```
+
+```{r Plot of Magnesium over Time with Trend, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Magnesium in the Neuse River does not exhibit a monotonic trend over time."}
+ggplot(NeuseWQ_short, aes(x = Date_monthrounded, y = AvgMg_mg.L)) +
+  geom_point() +
+  geom_line() +
+  xlab("Date") +
+  ylab("Average Magnesium (mg/L)") +
+  geom_smooth(method = lm)
 ```
 
 ```{r Plot of Sodium Time Series Decomp, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Sodium in the Neuse River."}
 plot(NeuseCond_sodium_decomp, main = "Sodium")
 ```
 
+```{r Plot of Sodium over Time with Trend, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Sodium in the Neuse River does not exhibit a monotonic trend over time."}
+ggplot(NeuseWQ_short, aes(x = Date_monthrounded, y = AvgNa_mg.L)) +
+  geom_point() +
+  geom_line() +
+  xlab("Date") +
+  ylab("Average Sodium (mg/L)") +
+  geom_smooth(method = lm)
+```
+
 \newpage
 
-We also constructed and decomposed the time series for our flow dataset. The decomposition shows that discharge in the Neuse River basin has seasonality (Figure 8). The seasonal MannKendall test shows that discharge exhibits a non-monotonic trend over time, with flow significantly increasing year after year (p-value = 3.368e-07, Table 2). This increasing trend in flow may be masking increases in salt content in the river, as increased flow will dilute an increased salt content to the same concentration, hiding an increase in salt deposition to the river.
+We also constructed and decomposed the time series for our flow dataset to determine whether discharge could be affecting our salinization results. The decomposition shows that discharge in the Neuse River basin has a seasonal component and a trend (Figure 12). The seasonal MannKendall test shows that discharge exhibits a monotonic trend over time, with flow significantly increasing year after year (p-value = 3.368e-07) (Figure 13, Table 2). This increasing trend in flow may be masking increases in salt content in the river, as increased flow will dilute an increased salt content to the same concentration, hiding an increase in salt deposition to the river.
 
 ```{r Discharge time series and decomp, include=FALSE}
 #Creating Time Series for flow data
@@ -289,6 +316,16 @@ NeuseFlow_decomp <- stl(NeuseFlow_ts, s.window = "periodic")
 ```{r Plot of Discharge Time Series Decomposition, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width = 6, fig.height = 4, fig.cap="Time Series Decomposition of Discharge in the Neuse River."}
 plot(NeuseFlow_decomp, main = "Discharge")
 ```
+
+```{r Plot of Discharge over Time with Trend, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Discharge in the Neuse River does exhibit a monotonic trend over time."}
+ggplot(NeuseFlow_processed, aes(x = ActivityStartDate, y = discharge_cfs)) +
+  geom_line() +
+  xlab("Date") +
+  ylab("Discharge (cfs)") +
+  geom_smooth(method = lm)
+```
+
+\newpage
 
 ---
 
@@ -307,6 +344,8 @@ Discharge         | 3.368e-07
 Neuse_seasonality_trends_Conductivity <- Kendall::SeasonalMannKendall(NeuseCond_ts)
 Neuse_seasonality_trends_Conductivity
 summary(Neuse_seasonality_trends_Conductivity)
+#conductivity_trend <- trend::smk.test(NeuseCond_ts)
+#summary(conductivity_trend)
 
 #Calcium
 Neuse_seasonality_trends_Conductivity_Ca <- Kendall::SeasonalMannKendall(NeuseCond_Calcium_ts)
@@ -328,63 +367,55 @@ summary(Neuse_seasonality_trends_Conductivity_Na)
 Neuse_seasonality_trends_Flow <- Kendall::SeasonalMannKendall(NeuseFlow_ts)
 Neuse_seasonality_trends_Flow
 summary(Neuse_seasonality_trends_Flow)
+#discharge_trend <- trend::smk.test(NeuseFlow_ts)
+#summary(discharge_trend)
 ```
 
----
+After running the the Seasonal MannKendall test, we have found no significant change in the Neuse River over time for conductivity (p-value = 0.25276)(Table 2). However, we were able to reject the Null for flow data, and determine there has been a significant increase in discharge over time (p-value = 3.368e-07) (Table 2).
+
 
 \newpage
 
-We plotted each mineral by the day of the year (DOY) to visualize any seasonal patterns within a year. We can see that there is no correlation between each specific conductivity or salt concentration over the year. 
+### Is there seasonality in specific conductivity and flow of the Neuse River?
 
-Higher specific conductivity is correlated with higher concentrations of each salt, as is expected since more salt ions leads to higher salinity. However, there is no discernible pattern related to the DOY. While our time series analysis showed a seasonal component to 
+We plotted each mineral by specific conductance and colored by the day of the year (DOY) to visualize any seasonal patterns within a year (Figure 14). If the specific conductance or the different minerals exhibited seasonality, we would expect to see clusters of the same color within the plot. Although our time series analysis showed a seasonal component, we see that the DOY coloring shows no patterns, and thus, specific conductance and the minerals of Ca, Mg, and Na do not have any seasonal trend over the year. However, we do see that Na shows the strongest correlation with specific conductance out of all the minerals shown (stronger positive trend). 
 
 ```{r Create DOY column, include=FALSE, echo=FALSE, message=FALSE}
-NeuseWQ_DOY <- NeuseWQ_processed %>%
+NeuseWQ_DOY <- NeuseWQ_processed_pivotLonger %>%
   filter(Year >= 2013 & Year <= 2022) %>%
   mutate(DOY = yday(ActivityStartDate)) 
 ```
 
-```{r}
-ggplot(NeuseWQ_DOY) +
-  geom_point(aes(x = DOY, y = SpC_uS.cm)) +
-  geom_abline(aes(x = DOY, y = SpC_uS.cm))
+```{r Plot by DOY, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Salts by Specific Conductivity over the Year"}
+saltsvspc_plot2 <- ggplot(NeuseWQ_DOY, aes(x = SpC_uS.cm, y = ResultMeasureValue, color = DOY, shape = Mineral)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_c() +
+  labs(x = expression("Specific Conductance ("*mu*"S/cm)"), y = "Mineral Concentration (mg/L)", color = "Day of Year")
+saltsvspc_plot2
+
 ```
 
+We also plotted boxplots of specific conductance and discharge for each month to visualize any seasonality over a year (Figure 15). We would expect to see high values of specific conductance in winter months when salts are applied to roads before/after snowfall, and low values specific conductance values in the summer months when road salts are not applied. We do not see any strong seasonal specific conductance trends in these plots. However, viewing the boxplots in conjunction with discharge, we see that there is generally an inverse relationship between the two. As discharge is high in winter months, specific conductance is low, likely because the minerals are diluted. 
 
+```{r Boxplots of Specific Conductance and Discharge, echo=FALSE, fig.align='center', fig.height=6, fig.width=6, message=FALSE, warning=FALSE, include=TRUE, fig.cap="Comparison of specific conductance and discharge over the months."}
+SpC_boxplot <- ggplot(NeuseWQ_processed, aes(x = as.factor(Month), y = SpC_uS.cm)) +
+  geom_boxplot() +
+  labs(x = "Month", y = expression("Specific Conductance ("*mu*"S/cm)"))
+Flow_boxplot <- ggplot(NeuseFlow_processed, aes(x = as.factor(Month), y = discharge_cfs)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  labs(x = "Month", y = expression("Discharge (cfs)"))
 
-```{r Plot by DOY, include=TRUE, echo=FALSE, fig.align='left', fig.cap="Salts by Specific Conductivity over the Year"}
-saltsvspc_plot <- ggplot(NeuseWQ_DOY)+
-  geom_point(shape = 1, alpha = 0.75, size = 1, aes(x = SpC_uS.cm, y = Mg_mg.L, color = DOY)) +
-  geom_point(shape = 2, alpha = 0.75, size = 1, aes(x = SpC_uS.cm, y = Ca_mg.L, color = DOY)) +
-  geom_point(shape = 3, alpha = 0.75, size = 1, aes(x = SpC_uS.cm, y = Na_mg.L, color = DOY)) +
-  scale_color_viridis_c()+
-  labs(x = "Spec. Cond.", y = "mg/L", color = "DOY", caption = "Sodium is depicted as the plus, calcium is depicted as the triangle, magnesium is depicted as the circle")
-saltsvspc_plot
+plot_grid(SpC_boxplot, Flow_boxplot, ncol=1, align = "hv")
 ```
-
-``` {r Individual DOY plots, include=FALSE}
-spcDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = SpC_uS.cm)) +
-  geom_line()
-spcDOY_plot
-MgDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = SpC_uS.cm)) +
-  geom_line()
-MgDOY_plot
-CaDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = Ca_mg.L)) +
-  geom_line()
-CaDOY_plot
-NaDOY_plot <- ggplot(NeuseWQ_DOY, aes(x = DOY, y = Na_mg.L)) +
-  geom_line()
-NaDOY_plot
-```
-
 
 \newpage
 
 
 ## Question 2: Is calcium, magnesium, or sodium the driver of specific conductance?
-While there isn't much seasonality in the specific conductance found at this site in the Neuse, the salt ions measured there can still be examined to see if one or another appears to be driving the conductivity. It appears as though sodium is the ion most closely associated with the specific conductivity found at this site, as this ion both most closely aligns with the patterns seen in the data and also is the most abundant ion.
+While there is not much seasonality in the specific conductance found at this site in the Neuse River basin, the salt ions measured can still be examined to see if one or another appears to be driving the conductivity. It appears as though sodium is the ion most closely associated with the specific conductivity found at this site, as this ion both most closely aligns with the patterns seen in the data and also is the most abundant ion.
 
-```{r Visualize 2013-2021 Conductivity, include=TRUE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Conductivity in the Neuse River from 2013 through 2021."}
+```{r Visualize 2013-2021 Conductivity, include=FALSE, echo=FALSE, message=FALSE, fig.align='left', fig.cap="Conductivity in the Neuse River from 2013 through 2021."}
 #plot specific conductivity over same shorter time period
 SpCshort_plot <- ggplot(NeuseWQ_short) +
   geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
@@ -421,16 +452,28 @@ plot_grid(Ca.plot, Mg.plot, Na.plot,
 ```
 
 ```{r Visualise salts and conductivity, include=TRUE, echo=FALSE, fig.align='left', fig.cap="Specific Conductivity and Salts in the Neuse River from 2013 through 2021"}
+#pivot_longer
+NeuseWQ_short_pivotLonger <- pivot_longer(NeuseWQ_short, AvgCa_mg.L:AvgSpC_uS.cm, names_to = "Mineral", values_to = "ResultMeasureValue")
+
 #plot spec cond and the salts on the same plot to look for patterns
-SpC.v.salts_plot <- ggplot(NeuseWQ_short) +
-  geom_line(aes(x = Date_monthrounded, y = AvgSpC_uS.cm)) +
-  geom_line(aes(x = Date_monthrounded, y = AvgCa_mg.L), color="red") +
-  geom_line(aes(x = Date_monthrounded, y = AvgMg_mg.L), color="blue") +
-  geom_line(aes(x = Date_monthrounded, y = AvgNa_mg.L), color="yellow3") +
-  scale_y_log10()+
-  labs(x = "Date", y = "Concentration", color = "Variable")
+SpC.v.salts_plot <- ggplot(NeuseWQ_short_pivotLonger) +
+  geom_line(aes(x = Date_monthrounded, y = ResultMeasureValue, color = Mineral)) +
+  scale_y_log10() +
+  scale_color_viridis_d() +
+  labs(x = "Date", y = "Concentration", color = "Mineral")
 SpC.v.salts_plot
 ```
+
+```{r Plot by minerals by specific conductance, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Salts by Specific Conductivity over the Year."}
+saltsvspc_plot3 <- ggplot(NeuseWQ_DOY, aes(x = SpC_uS.cm, y = ResultMeasureValue, color = Mineral, shape = Mineral)) +
+  geom_point(alpha = 0.6) +
+  scale_color_viridis_d() +
+  labs(x = expression("Specific Conductance ("*mu*"S/cm)"), y = "Mineral Concentration (mg/L)", color = "Mineral")
+saltsvspc_plot3
+
+```
+
+**[[[[[add corrplot?? talk about actual lm]]]]]**
 
 ```{r Correlation b/t Salts and Specific Conductivity, echo=FALSE}
 ggplot(NeuseWQ_short) +
@@ -449,111 +492,6 @@ summary(Mg_lm)
 
 ```
 
-## Question 3: What is the likely specific conductance in the future (forcasting trends)?
-
-Are we still evaluating this? 
-
-```{r eval=FALSE, include=FALSE}
-#IN PROGRESS, not complete
-#####i set this chunk to not run when knitting until its completed (-atalie)
-
-#test for stationary, if p<0.05, the data is stationary (& we can run ARMA)
-
-adf.test(NeuseCond_ts)
-
-#Test for autocorrelation
-
-forecast::Acf(NeuseCond_ts, type = "correlation", plot = TRUE, calc.ci= TRUE)
-
-forecast::Pacf(NeuseCond_ts)
-
-#attempt to forecast scenario
-Conductivity_forecast <- forecast::forecast(NeuseCond_ts)
-
-plot(Conductivity_forecast %>%
-     labs(title = "Forecasts from ETS (A,N,N)"), x = "")
-
-
-```
-
-
-
-
-```{r STRAIGHT FROM WDA, eval=FALSE, include=FALSE}
-# Recall there are a lot of parameters measured at the site
-NeuseParams <- whatNWISdata(siteNumbers = "02089500")
-
-# Extract latitude and longitude for the site
-NeuseCoords <- NeuseParams %>%
-  select(site_no, dec_lat_va, dec_long_va) %>%
-  distinct() #include only distinct rows in dataframe (consolidate repeats)
-
-# Define the gage site as the starting point
-start_point <- st_sfc(st_point(c(NeuseCoords$dec_long_va, NeuseCoords$dec_lat_va)), #convert lat/long coordinates into spatial data
-                      crs = 4269) # NAD83, commonly  used by US agencies
-start_comid <- discover_nhdplus_id(start_point) #ask for ID of site using coordinates 
-# start_point2 <- st_as_sf(data.frame(x = NeuseCoords$dec_long_va, y =  NeuseCoords$dec_lat_va), 
-#                             coords = c("x", "y"), crs = 4269)
-
-# Navigate the NLDI network
-NLDI <- navigate_nldi(list(featureSource = "comid", featureID = start_comid), #create origin dataset and flow lines (define upstream flowing down to the station point)
-                          mode = "upstreamTributaries", 
-                          distance_km = 1000)
-
-# Extract watershed and flowpath information
-subset_file <- tempfile(fileext = ".gpkg") #must use temp file to use subset function below
-subset <- subset_nhdplus(comids = as.integer(NLDI$UT$nhdplus_comid), #match with start_comid
-                         output_file = subset_file, 
-                         nhdplus_data = "download", 
-                         flowline_only = FALSE,
-                         return_data = TRUE, overwrite = TRUE) #overwrite temporary file 
-
-# Create data frames
-flowline <- subset$NHDFlowline_Network #streams and rivers within the defined network (dendritic pattern) (line segments)
-catchment <- subset$CatchmentSP #0/1 inlet, 1 outlet. no specific flowlines in, but flowline out. (polygon)
-waterbody <- subset$NHDWaterbody #anything other than a stream (polygon)
-
-class(flowline) #spatial features, tables, dataframes
-class(catchment)
-class(waterbody)
-
-# find gages near watershed
-gages <- get_nwis(AOI = catchment) #find other gages within the area of our catchment. can also define distance from a point as area of interest. 
-class(gages)
-
-# find gages only within watershed
-gages <- st_intersection(gages, catchment) #create dataset including only gages that intersect with catchement of interest. warning reminding that it should be in same projection. 
-
-
-
-
-
-
-
-plot_nhdplus("USGS-02089500", streamorder = 3) #specify minimum stream order you want to show. don't need to do all the stuff before. this is the Neuse River at Kinston (prepackaged) 
-
-
-states <- st_as_sf(map(database = "state", plot = FALSE, fill = TRUE, col = "white"))
-nc <- filter(states, ID == "north carolina")
-
-ggplot(nc) +
-  geom_sf(fill = "white") +
-  geom_sf(data = flowline, aes(color = streamorde)) +
-  labs(color = "Stream Order") +
-  theme(legend.position = "top")
-
-ggplot(catchment) +
-  geom_sf(fill = "white", color = "gray", lwd = 0.5) +
-  geom_sf(data = flowline, aes(color = streamorde)) +
-  geom_sf(data = gages, color = "darkred", size = 1) +
-  labs(color = "Stream Order") +
-  theme(legend.position = "top")
-```
-
-
-
-
-
 \newpage
 
 # Summary and Conclusions
@@ -561,4 +499,4 @@ The Neuse River at Kinston does not show strong seasonality in salinity and appe
 
 Sodium appears to have the strongest impact on specific conductance, indicating that it perhaps is the main driver of the salinity that does exist in the Neuse River. Sodium is the most abundant ion in the water, magnesium and calcium had a much lower concentration. Sodium also appears to have a nearly 1:1 correlation with specific conductivity, as seen in the DOY plot where they are plotted against each other. 
 
-Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. The location of Kinston in the watershed has been brought up in this analysis multiple times because it is significant. This gage site is potentially far enough downstream from where road salt would be used to have the salinity be insignificant by the time the water reached Kinston. This gage was chosen in oart because it actually measures the salinity data we were interested in (and in part because we knew it was a pretty good dataset), but a future study would be interesting to compare the data at Kinston to similarly collected data at a gage site further upstream, like at Clayton, which is relatively close to the major metro area around Raleigh where road salt is also likely to be more prevalent than in smaller population areas. 
+Overall, this is good news for the Neuse, indicating that at Kinston, which is relatively far down the watershed, upstream uses of salts do not cause seasonal changes in the river. The location of Kinston in the watershed has been brought up in this analysis multiple times because it is significant. This gage site is potentially far enough downstream from where road salt would be used to have the salinity be insignificant by the time the water reached Kinston. This gage was chosen in part because it actually measures the salinity data we were interested in (and in part because we knew it was a pretty good dataset), but a future study would be interesting to compare the data at Kinston to similarly collected data at a gage site further upstream, like at Clayton, which is relatively close to the major metro area around Raleigh where road salt is also likely to be more prevalent than in smaller population areas. 
