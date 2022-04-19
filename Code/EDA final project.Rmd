@@ -50,8 +50,6 @@ library(nhdplusTools)
 library(cowplot)
 #library(fable)
 library(tseries)
-#install.packages("reshape2")
-library(reshape2)
 
 # Set ggplot theme
 mytheme <- theme_classic(base_size = 10) +
@@ -81,13 +79,7 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
 # Rationale and Research Questions
 The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of salinity, a key component of water quality. Changes in conductivity over time suggest potential salt and mineral pollutants entering the system, and also potential salinization over time. 
 
-<<<<<<< HEAD
 For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: *Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor?* Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398).
-=======
-=======
-For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). We also know from living in the headwaters of this river that salt is applied to roadways in the upper watershed in the winter (albeit infrequently). Since the gage at Kinston is further downstream,  we will examine whether there are significant downstream effects of road salting on water quality in the Neuse River basin. ADD MORE?
-
->>>>>>> 35fb7013fec92c5bba2e868721ba451ca364fff1
 
 We used the following research questions to guide our work: 
 
