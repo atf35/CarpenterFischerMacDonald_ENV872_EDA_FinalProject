@@ -89,7 +89,6 @@ We used the following research questions to guide our work:
 
 > 1. How does specific conductance vary seasonally? 
 > 2. Is calcium, magnesium, or sodium the driver of specific conductance?
-> 3. What is the likely specific conductance in the future (forcasting trends)?
 
 
 \newpage
@@ -440,34 +439,6 @@ summary(Mg_lm)
 
 
 ```
-
-## Question 3: What is the likely specific conductance in the future (forcasting trends)?
-
-Are we still evaluating this? 
-
-```{r eval=FALSE, include=FALSE}
-#IN PROGRESS, not complete
-#####i set this chunk to not run when knitting until its completed (-atalie)
-
-#test for stationary, if p<0.05, the data is stationary (& we can run ARMA)
-
-adf.test(NeuseCond_ts)
-
-#Test for autocorrelation
-
-forecast::Acf(NeuseCond_ts, type = "correlation", plot = TRUE, calc.ci= TRUE)
-
-forecast::Pacf(NeuseCond_ts)
-
-#attempt to forecast scenario
-Conductivity_forecast <- forecast::forecast(NeuseCond_ts)
-
-plot(Conductivity_forecast %>%
-     labs(title = "Forecasts from ETS (A,N,N)"), x = "")
-
-
-```
-
 
 
 
