@@ -469,7 +469,7 @@ SpC.v.salts_plot <- ggplot(NeuseWQ_short_pivotLonger) +
 SpC.v.salts_plot
 ```
 
-```{r Plot by minerals by specific conductance, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Salts by Specific Conductivity over the Year."}
+```{r Plot by minerals by specific conductance, include=TRUE, echo=FALSE, message=FALSE, fig.align='center', fig.width=6, fig.height=4, fig.cap="Salts by Specific Conductivity."}
 saltsvspc_plot3 <- ggplot(NeuseWQ_DOY, aes(x = SpC_uS.cm, y = ResultMeasureValue, color = Mineral, shape = Mineral)) +
   geom_point(alpha = 0.6) +
   scale_color_viridis_d() +
@@ -497,86 +497,7 @@ summary(Mg_lm)
 
 ```
 
-<<<<<<< HEAD
-=======
 
-
-```{r STRAIGHT FROM WDA, eval=FALSE, include=FALSE}
-# Recall there are a lot of parameters measured at the site
-NeuseParams <- whatNWISdata(siteNumbers = "02089500")
-
-# Extract latitude and longitude for the site
-NeuseCoords <- NeuseParams %>%
-  select(site_no, dec_lat_va, dec_long_va) %>%
-  distinct() #include only distinct rows in dataframe (consolidate repeats)
-
-# Define the gage site as the starting point
-start_point <- st_sfc(st_point(c(NeuseCoords$dec_long_va, NeuseCoords$dec_lat_va)), #convert lat/long coordinates into spatial data
-                      crs = 4269) # NAD83, commonly  used by US agencies
-start_comid <- discover_nhdplus_id(start_point) #ask for ID of site using coordinates 
-# start_point2 <- st_as_sf(data.frame(x = NeuseCoords$dec_long_va, y =  NeuseCoords$dec_lat_va), 
-#                             coords = c("x", "y"), crs = 4269)
-
-# Navigate the NLDI network
-NLDI <- navigate_nldi(list(featureSource = "comid", featureID = start_comid), #create origin dataset and flow lines (define upstream flowing down to the station point)
-                          mode = "upstreamTributaries", 
-                          distance_km = 1000)
-
-# Extract watershed and flowpath information
-subset_file <- tempfile(fileext = ".gpkg") #must use temp file to use subset function below
-subset <- subset_nhdplus(comids = as.integer(NLDI$UT$nhdplus_comid), #match with start_comid
-                         output_file = subset_file, 
-                         nhdplus_data = "download", 
-                         flowline_only = FALSE,
-                         return_data = TRUE, overwrite = TRUE) #overwrite temporary file 
-
-# Create data frames
-flowline <- subset$NHDFlowline_Network #streams and rivers within the defined network (dendritic pattern) (line segments)
-catchment <- subset$CatchmentSP #0/1 inlet, 1 outlet. no specific flowlines in, but flowline out. (polygon)
-waterbody <- subset$NHDWaterbody #anything other than a stream (polygon)
-
-class(flowline) #spatial features, tables, dataframes
-class(catchment)
-class(waterbody)
-
-# find gages near watershed
-gages <- get_nwis(AOI = catchment) #find other gages within the area of our catchment. can also define distance from a point as area of interest. 
-class(gages)
-
-# find gages only within watershed
-gages <- st_intersection(gages, catchment) #create dataset including only gages that intersect with catchement of interest. warning reminding that it should be in same projection. 
-
-
-
-
-
-
-
-plot_nhdplus("USGS-02089500", streamorder = 3) #specify minimum stream order you want to show. don't need to do all the stuff before. this is the Neuse River at Kinston (prepackaged) 
-
-
-states <- st_as_sf(map(database = "state", plot = FALSE, fill = TRUE, col = "white"))
-nc <- filter(states, ID == "north carolina")
-
-ggplot(nc) +
-  geom_sf(fill = "white") +
-  geom_sf(data = flowline, aes(color = streamorde)) +
-  labs(color = "Stream Order") +
-  theme(legend.position = "top")
-
-ggplot(catchment) +
-  geom_sf(fill = "white", color = "gray", lwd = 0.5) +
-  geom_sf(data = flowline, aes(color = streamorde)) +
-  geom_sf(data = gages, color = "darkred", size = 1) +
-  labs(color = "Stream Order") +
-  theme(legend.position = "top")
-```
-
-
-
-
-
->>>>>>> 35fb7013fec92c5bba2e868721ba451ca364fff1
 \newpage
 
 # Summary and Conclusions
