@@ -329,13 +329,21 @@ summary(Neuse_seasonality_trends_Flow)
 
 We plotted each mineral by the day of the year (DOY) to visualize any seasonal patterns within a year. We can see that there is no correlation between each specific conductivity or salt concentration over the year. 
 
-Higher specific conductivity is correlated with higher concentrations of each salt, as is expected since more salt ions leads to higher salinity. However, there is no discernible pattern related to the DOY. This corroborates our time series analysis that there is not a significant seasonal component the salinity of the Neuse at Kinston. 
+Higher specific conductivity is correlated with higher concentrations of each salt, as is expected since more salt ions leads to higher salinity. However, there is no discernible pattern related to the DOY. While our time series analysis showed a seasonal component to 
 
 ```{r Create DOY column, include=FALSE, echo=FALSE, message=FALSE}
 NeuseWQ_DOY <- NeuseWQ_processed %>%
   filter(Year >= 2013 & Year <= 2022) %>%
   mutate(DOY = yday(ActivityStartDate)) 
 ```
+
+```{r}
+ggplot(NeuseWQ_DOY) +
+  geom_point(aes(x = DOY, y = SpC_uS.cm)) +
+  geom_abline(aes(x = DOY, y = SpC_uS.cm))
+```
+
+
 
 ```{r Plot by DOY, include=TRUE, echo=FALSE, fig.align='left', fig.cap="Salts by Specific Conductivity over the Year"}
 saltsvspc_plot <- ggplot(NeuseWQ_DOY)+
