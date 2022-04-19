@@ -83,7 +83,7 @@ The maintenance of healthy and functioning water systems is critical not just to
 For this study, we chose to analyze how specific conductance can vary depending on the season. In particular, we wanted to address the impact of winterizing the roadways with salt on water quality. Our main research question was: is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze the Neuse River in Kinston, North Carolina over a 46 year period (1976-2022). We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398).
 =======
 For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). We also know from living in the headwaters of this river that salt is applied to roadways in the upper watershed in the winter (albeit infrequently). Since the gage at Kinston is further downstream,  we will examine whether there are significant downstream effects of road salting on water quality in the Neuse River basin. ADD MORE?
->>>>>>> a839bb1c42e04809884d612d445d82ba6e9e5349
+
 
 We used the following research questions to guide our work: 
 
