@@ -81,13 +81,18 @@ NeuseFlow <- readNWISdv(siteNumbers = "02089500", # Neuse River at Kinston, NC
 # Rationale and Research Questions
 The maintenance of healthy and functioning water systems is critical not just to human life, but also to the survival of countless other species and their interconnected ecosystems. Conductivity, or the ability of water to pass an electrical current via dissolved salts and other minerals, is a strong indicator of salinity, a key component of water quality. Changes in conductivity over time suggest potential salt and mineral pollutants entering the system, and also potential salinization over time. 
 
+<<<<<<< HEAD
 For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: *Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor?* Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398).
+=======
+=======
+For this study, we will analyze how specific conductance varies over time. In particular, we will address the impact of winterizing the roadways with salt on water quality. Our main research question is: Is salting the roads a main driver in changes to water conductivity, or are other  minerals a significant factor? Here, we chose to analyze water quality and flow data from the Neuse River in Kinston, North Carolina from 1976 to 2022. We chose this river due to familiarity with the data and its proximity to an urban center (Kinston pop = 20,398). We also know from living in the headwaters of this river that salt is applied to roadways in the upper watershed in the winter (albeit infrequently). Since the gage at Kinston is further downstream,  we will examine whether there are significant downstream effects of road salting on water quality in the Neuse River basin. ADD MORE?
+
+>>>>>>> 35fb7013fec92c5bba2e868721ba451ca364fff1
 
 We used the following research questions to guide our work: 
 
 > 1. How does specific conductance vary over time and seasonally? 
 > 2. Is calcium, magnesium, or sodium the driver of specific conductance?
-> 3. What is the likely specific conductance in the future (forcasting trends)?
 
 
 \newpage
@@ -492,6 +497,86 @@ summary(Mg_lm)
 
 ```
 
+<<<<<<< HEAD
+=======
+
+
+```{r STRAIGHT FROM WDA, eval=FALSE, include=FALSE}
+# Recall there are a lot of parameters measured at the site
+NeuseParams <- whatNWISdata(siteNumbers = "02089500")
+
+# Extract latitude and longitude for the site
+NeuseCoords <- NeuseParams %>%
+  select(site_no, dec_lat_va, dec_long_va) %>%
+  distinct() #include only distinct rows in dataframe (consolidate repeats)
+
+# Define the gage site as the starting point
+start_point <- st_sfc(st_point(c(NeuseCoords$dec_long_va, NeuseCoords$dec_lat_va)), #convert lat/long coordinates into spatial data
+                      crs = 4269) # NAD83, commonly  used by US agencies
+start_comid <- discover_nhdplus_id(start_point) #ask for ID of site using coordinates 
+# start_point2 <- st_as_sf(data.frame(x = NeuseCoords$dec_long_va, y =  NeuseCoords$dec_lat_va), 
+#                             coords = c("x", "y"), crs = 4269)
+
+# Navigate the NLDI network
+NLDI <- navigate_nldi(list(featureSource = "comid", featureID = start_comid), #create origin dataset and flow lines (define upstream flowing down to the station point)
+                          mode = "upstreamTributaries", 
+                          distance_km = 1000)
+
+# Extract watershed and flowpath information
+subset_file <- tempfile(fileext = ".gpkg") #must use temp file to use subset function below
+subset <- subset_nhdplus(comids = as.integer(NLDI$UT$nhdplus_comid), #match with start_comid
+                         output_file = subset_file, 
+                         nhdplus_data = "download", 
+                         flowline_only = FALSE,
+                         return_data = TRUE, overwrite = TRUE) #overwrite temporary file 
+
+# Create data frames
+flowline <- subset$NHDFlowline_Network #streams and rivers within the defined network (dendritic pattern) (line segments)
+catchment <- subset$CatchmentSP #0/1 inlet, 1 outlet. no specific flowlines in, but flowline out. (polygon)
+waterbody <- subset$NHDWaterbody #anything other than a stream (polygon)
+
+class(flowline) #spatial features, tables, dataframes
+class(catchment)
+class(waterbody)
+
+# find gages near watershed
+gages <- get_nwis(AOI = catchment) #find other gages within the area of our catchment. can also define distance from a point as area of interest. 
+class(gages)
+
+# find gages only within watershed
+gages <- st_intersection(gages, catchment) #create dataset including only gages that intersect with catchement of interest. warning reminding that it should be in same projection. 
+
+
+
+
+
+
+
+plot_nhdplus("USGS-02089500", streamorder = 3) #specify minimum stream order you want to show. don't need to do all the stuff before. this is the Neuse River at Kinston (prepackaged) 
+
+
+states <- st_as_sf(map(database = "state", plot = FALSE, fill = TRUE, col = "white"))
+nc <- filter(states, ID == "north carolina")
+
+ggplot(nc) +
+  geom_sf(fill = "white") +
+  geom_sf(data = flowline, aes(color = streamorde)) +
+  labs(color = "Stream Order") +
+  theme(legend.position = "top")
+
+ggplot(catchment) +
+  geom_sf(fill = "white", color = "gray", lwd = 0.5) +
+  geom_sf(data = flowline, aes(color = streamorde)) +
+  geom_sf(data = gages, color = "darkred", size = 1) +
+  labs(color = "Stream Order") +
+  theme(legend.position = "top")
+```
+
+
+
+
+
+>>>>>>> 35fb7013fec92c5bba2e868721ba451ca364fff1
 \newpage
 
 # Summary and Conclusions
